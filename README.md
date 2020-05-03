@@ -1,4 +1,4 @@
-# Gestibank
+# GESTIBANK
 
 Projet de gestion des comptes bancaires en ligne
 
