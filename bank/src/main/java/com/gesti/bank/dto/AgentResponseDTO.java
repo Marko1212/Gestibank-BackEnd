@@ -1,0 +1,112 @@
+package com.gesti.bank.dto;
+
+public class AgentResponseDTO {
+	
+	private String email;
+	private String firstname;
+	private String lastname;
+	private String phone;
+	private String username;
+	private String additionalInfoAddress;
+	private String city;
+	private String country;
+	private String homeNumber;
+	private String street;
+	private int zip;
+	private int idUserAccount;
+	
+	
+	public AgentResponseDTO(String email, String firstname, String lastname, String phone, String username, String additionalInfoAddress,
+			String city, String country, String homeNumber, String street, int zip, int idUserAccount) {
+		super();
+		this.email = email;
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.phone = phone;
+		this.username = username;
+		this.additionalInfoAddress = additionalInfoAddress;
+		this.city = city;
+		this.country = country;
+		this.homeNumber = homeNumber;
+		this.street = street;
+		this.zip = zip;
+		this.idUserAccount = idUserAccount;
+	}
+	public String getEmail() {
+		return email;
+	}
+	public void setEmail(String email) {
+		this.email = email;
+	}
+	public String getFirstname() {
+		return firstname;
+	}
+	public void setFirstname(String firstname) {
+		this.firstname = firstname;
+	}
+	public String getUsername() {
+		return username;
+	}
+	public void setUsername(String username) {
+		this.username = username;
+	}
+	public String getLastname() {
+		return lastname;
+	}
+	public void setLastname(String lastname) {
+		this.lastname = lastname;
+	}
+	public String getPhone() {
+		return phone;
+	}
+	public void setPhone(String phone) {
+		this.phone = phone;
+	}
+	public String getAdditionalInfoAddress() {
+		return additionalInfoAddress;
+	}
+	public void setAdditionalInfoAddress(String additionalInfoAddress) {
+		this.additionalInfoAddress = additionalInfoAddress;
+	}
+	public String getCity() {
+		return city;
+	}
+	public void setCity(String city) {
+		this.city = city;
+	}
+	public String getCountry() {
+		return country;
+	}
+	public void setCountry(String country) {
+		this.country = country;
+	}
+	public String getHomeNumber() {
+		return homeNumber;
+	}
+	public void setHomeNumber(String homeNumber) {
+		this.homeNumber = homeNumber;
+	}
+	public String getStreet() {
+		return street;
+	}
+	public void setStreet(String street) {
+		this.street = street;
+	}
+	public int getZip() {
+		return zip;
+	}
+	public void setZip(int zip) {
+		this.zip = zip;
+	}
+	public int getIdUserAccount() {
+		return idUserAccount;
+	}
+	public void setIdUserAccount(int idUserAccount) {
+		this.idUserAccount = idUserAccount;
+	}
+	
+	
+	
+
+	
+}
