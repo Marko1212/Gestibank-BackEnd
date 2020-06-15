@@ -279,6 +279,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 			userAccountRepository.flush();
 		} else {
 			agent.setEndDate(new Date());
+			agent.setValid((byte)0);
 			userAccountRepository.saveAndFlush(agent);
 		}
 		int idAgentsAddress = agent.getAddress().getIdAddress();
