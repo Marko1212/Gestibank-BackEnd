@@ -6,7 +6,7 @@ Le projet comporte deux parties : front end et back end.
 
 Dans ce repository se trouve le code de la partie back end.
 
-## Technologies back end utilisées: 
+## Technologies back end utilisées 
 Java EE, Spring Boot, Hibernate, MySQL
 
 ## Installation
@@ -24,7 +24,7 @@ mvn spring-boot:run
 bancaires des clients via le Web. Dans ce cadre, l’application GestiBank répond principalement à 2 objectifs : - création, suivi et la gestion des comptes 
 bancaires pour les clients de la banque, administration et paramétrage des comptes pour les agents de la banque.
 
-## Ont été implémentés pour le moment:
+## Ont été implémentés pour le moment
 
 - L'Espace Public: - Permettre à tout le monde de demander l’ouverture de comptes bancaires, permettre à tout le monde de connaître le cours de la devise grâce à un Web service
 
