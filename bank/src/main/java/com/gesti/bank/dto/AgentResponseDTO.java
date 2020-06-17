@@ -74,6 +74,7 @@ public class AgentResponseDTO {
 	public void setCity(String city) {
 		this.city = city;
 	}
+	
 	public String getCountry() {
 		return country;
 	}
