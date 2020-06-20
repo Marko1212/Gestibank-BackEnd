@@ -14,6 +14,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.gesti.bank.dto.AgentResponseDTO;
+import com.gesti.bank.dto.ClientResponseForAdminDTO;
 import com.gesti.bank.dto.CreateAgentRequestDTO;
 import com.gesti.bank.dto.CreateClientRequestDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
@@ -36,11 +37,11 @@ public class UserAccountServiceImpl implements UserAccountService {
 	private final static String ROLE_ADMIN = "admin";
 	private final static String ROLE_CLIENT = "client";
 	private final static String ROLE_AGENT = "agent";
-	
+
 	private final static String IDENTIFICATION_DOCUMENT = "Identification document";
 	private final static String PROOF_HOME = "Home proof document";
 	private final static String PROOF_SALARY = "Salary proof document";
-	
+
 	@Autowired
 	DocumentRepository documentRepository;
 
@@ -55,7 +56,8 @@ public class UserAccountServiceImpl implements UserAccountService {
 
 	@Override
 	@Transactional
-	public String createClient(CreateClientRequestDTO request, MultipartFile idDocument, MultipartFile proofHome, MultipartFile proofSalary) throws Exception {
+	public String createClient(CreateClientRequestDTO request, MultipartFile idDocument, MultipartFile proofHome,
+			MultipartFile proofSalary) throws Exception {
 		Role clientRole = roleRepository.findByName(ROLE_CLIENT);
 		if (clientRole == null) {
 			throw new Exception("Role not found");
@@ -85,21 +87,24 @@ public class UserAccountServiceImpl implements UserAccountService {
 		boolean isValid = false;
 		userAccount.setValid((byte) (isValid ? 1 : 0));
 		userAccountRepository.saveAndFlush(userAccount);
-		
-		final Path rootForUser = Paths.get("uploads/"+userAccount.getIdUserAccount());
+
+		final Path rootForUser = Paths.get("uploads/" + userAccount.getIdUserAccount());
 		Files.createDirectory(rootForUser);
-		 
+
 		Files.copy(idDocument.getInputStream(), rootForUser.resolve(idDocument.getOriginalFilename()));
 		Files.copy(proofHome.getInputStream(), rootForUser.resolve(proofHome.getOriginalFilename()));
 		Files.copy(proofSalary.getInputStream(), rootForUser.resolve(proofSalary.getOriginalFilename()));
-		
-		Document idDocumentDoc = new Document(IDENTIFICATION_DOCUMENT, rootForUser.toString()+idDocument.getOriginalFilename(), userAccount);
-		Document proofHomeDoc = new Document(PROOF_HOME, rootForUser.toString()+proofHome.getOriginalFilename(), userAccount);
-		Document proofSalaryDoc = new Document(PROOF_SALARY, rootForUser.toString()+proofSalary.getOriginalFilename(), userAccount);
+
+		Document idDocumentDoc = new Document(IDENTIFICATION_DOCUMENT,
+				rootForUser.toString() + idDocument.getOriginalFilename(), userAccount);
+		Document proofHomeDoc = new Document(PROOF_HOME, rootForUser.toString() + proofHome.getOriginalFilename(),
+				userAccount);
+		Document proofSalaryDoc = new Document(PROOF_SALARY, rootForUser.toString() + proofSalary.getOriginalFilename(),
+				userAccount);
 		documentRepository.save(idDocumentDoc);
 		documentRepository.save(proofHomeDoc);
 		documentRepository.save(proofSalaryDoc);
-		
+
 		return "Success";
 	}
 
@@ -160,7 +165,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 //		}
 //		return response;
 //	}
-	
+
 	@Override
 	public List<AgentResponseDTO> getAllAgents(String filter) throws Exception {
 		Role agentRole = roleRepository.findByName(ROLE_AGENT);
@@ -170,10 +175,11 @@ public class UserAccountServiceImpl implements UserAccountService {
 		int filterId;
 		try {
 			filterId = Integer.parseInt(filter);
-		}catch (Exception e){
-			filterId = -1; //like a default value
+		} catch (Exception e) {
+			filterId = -1; // like a default value
 		}
-		List<UserAccount> agents = userAccountRepository.filterPerIdOrLastNameAndRole(agentRole,filterId, "%"+filter+"%");
+		List<UserAccount> agents = userAccountRepository.filterPerIdOrLastNameAndRole(agentRole, filterId,
+				"%" + filter + "%");
 		if (agents == null || agents.size() == 0) {
 			return null;
 		}
@@ -279,7 +285,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 			userAccountRepository.flush();
 		} else {
 			agent.setEndDate(new Date());
-			agent.setValid((byte)0);
+			agent.setValid((byte) 0);
 			userAccountRepository.saveAndFlush(agent);
 		}
 		int idAgentsAddress = agent.getAddress().getIdAddress();
@@ -305,6 +311,28 @@ public class UserAccountServiceImpl implements UserAccountService {
 				user.getLastname(), user.getPass(), user.getPhone(), user.getUsername(),
 				user.getAddress().getAdditionalInfo(), user.getAddress().getCity(), user.getAddress().getCountry(),
 				user.getAddress().getHomeNumber(), user.getAddress().getStreet(), user.getAddress().getZip(), id);
+		return response;
+	}
+
+	@Override
+	public List<ClientResponseForAdminDTO> getInvalidClients() throws Exception {
+		Role clientRole = roleRepository.findByName(ROLE_CLIENT);
+		if (clientRole == null) {
+			throw new Exception("Role not found");
+		}
+
+		List<UserAccount> clients = userAccountRepository.findAllByRoleAndValid(clientRole, (byte) 0);
+
+		if (clients == null || clients.size() == 0) {
+			return null;
+		}
+		List<ClientResponseForAdminDTO> response = new ArrayList<ClientResponseForAdminDTO>();
+		for (UserAccount client : clients) {
+				ClientResponseForAdminDTO tempObj = new ClientResponseForAdminDTO(client.getIdUserAccount(), client.getEmail(), client.getFirstname(),
+						client.getLastname(), client.getPhone());
+				response.add(tempObj);
+		}
+				
 		return response;
 	}
 

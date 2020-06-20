@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gesti.bank.dto.AgentResponseDTO;
+import com.gesti.bank.dto.ClientResponseForAdminDTO;
 import com.gesti.bank.dto.CreateAgentRequestDTO;
 import com.gesti.bank.dto.UpdateAgentRequestDTO;
 import com.gesti.bank.service.UserAccountService;
@@ -89,6 +90,17 @@ public class AdminController {
 		} catch (Exception e) {
 			response = e.getMessage();
 			return new ResponseEntity<String>(response, HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@GetMapping("/getInvalidClients")
+	public ResponseEntity<List<ClientResponseForAdminDTO>> getInvalidClients() {
+		List <ClientResponseForAdminDTO> listInvalidClients = new ArrayList<>();
+		try {
+			listInvalidClients = userAccountService.getInvalidClients();
+			return new ResponseEntity<List<ClientResponseForAdminDTO>>(listInvalidClients, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<List<ClientResponseForAdminDTO>>(listInvalidClients, HttpStatus.BAD_REQUEST);
 		}
 	}
 	

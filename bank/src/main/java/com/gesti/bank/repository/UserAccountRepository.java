@@ -15,6 +15,8 @@ public interface UserAccountRepository extends JpaRepository<UserAccount, Intege
 	List<UserAccount> findAllByRole(Role role);
 	UserAccount findByUsernameAndPass(String username, String password);
 	
+	List<UserAccount> findAllByRoleAndValid(Role role, byte valid);
+	
 	@Query("SELECT ua FROM UserAccount as ua where ua.role = :role AND " + 
 			"(ua.idUserAccount = :filterId or ua.lastname like :filter)")
 	List<UserAccount> filterPerIdOrLastNameAndRole(@Param("role") Role role, @Param("filterId") int filterId, @Param("filter") String filter);
