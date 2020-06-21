@@ -106,7 +106,7 @@ public class AdminController {
 		}
 	}
 	
-	@PostMapping("/аssignClient/{agentId}")
+	@PostMapping("/assignClient/{agentId}")
 	public ResponseEntity<String> assignClient(@PathVariable("agentId") int agentId, @RequestBody AssignClientRequestDTO request){
 		String response = "";
 		try {
