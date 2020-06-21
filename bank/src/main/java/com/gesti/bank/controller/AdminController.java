@@ -18,6 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gesti.bank.dto.AgentResponseDTO;
+import com.gesti.bank.dto.AssignClientRequestDTO;
+import com.gesti.bank.dto.ClientRequestForAdminDTO;
 import com.gesti.bank.dto.ClientResponseForAdminDTO;
 import com.gesti.bank.dto.CreateAgentRequestDTO;
 import com.gesti.bank.dto.UpdateAgentRequestDTO;
@@ -101,6 +103,18 @@ public class AdminController {
 			return new ResponseEntity<List<ClientResponseForAdminDTO>>(listInvalidClients, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<List<ClientResponseForAdminDTO>>(listInvalidClients, HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PostMapping("/аssignClient/{agentId}")
+	public ResponseEntity<String> assignClient(@PathVariable("agentId") int agentId, @RequestBody AssignClientRequestDTO request){
+		String response = "";
+		try {
+			//TODO SERVICE CALL
+			response = userAccountService.assignClient(agentId, request);
+			return new ResponseEntity<String>(response, HttpStatus.OK);
+		} catch (Exception e){
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
 	

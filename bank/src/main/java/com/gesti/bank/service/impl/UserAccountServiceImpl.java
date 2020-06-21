@@ -14,6 +14,8 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.gesti.bank.dto.AgentResponseDTO;
+import com.gesti.bank.dto.AssignClientRequestDTO;
+import com.gesti.bank.dto.ClientRequestForAdminDTO;
 import com.gesti.bank.dto.ClientResponseForAdminDTO;
 import com.gesti.bank.dto.CreateAgentRequestDTO;
 import com.gesti.bank.dto.CreateClientRequestDTO;
@@ -23,10 +25,12 @@ import com.gesti.bank.dto.LoginResponseDTO;
 import com.gesti.bank.dto.UpdateAgentRequestDTO;
 import com.gesti.bank.model.Address;
 import com.gesti.bank.model.Document;
+import com.gesti.bank.model.Request;
 import com.gesti.bank.model.Role;
 import com.gesti.bank.model.UserAccount;
 import com.gesti.bank.repository.AddressRepository;
 import com.gesti.bank.repository.DocumentRepository;
+import com.gesti.bank.repository.RequestRepository;
 import com.gesti.bank.repository.RoleRepository;
 import com.gesti.bank.repository.UserAccountRepository;
 import com.gesti.bank.service.UserAccountService;
@@ -41,6 +45,8 @@ public class UserAccountServiceImpl implements UserAccountService {
 	private final static String IDENTIFICATION_DOCUMENT = "Identification document";
 	private final static String PROOF_HOME = "Home proof document";
 	private final static String PROOF_SALARY = "Salary proof document";
+	
+	private final static String CREATE_ACCOUNT_TITLE = "CREATE_ACCOUNT";
 
 	@Autowired
 	DocumentRepository documentRepository;
@@ -53,6 +59,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 
 	@Autowired
 	UserAccountRepository userAccountRepository;
+	
+	@Autowired
+	RequestRepository requestRepository;
 
 	@Override
 	@Transactional
@@ -328,12 +337,65 @@ public class UserAccountServiceImpl implements UserAccountService {
 		}
 		List<ClientResponseForAdminDTO> response = new ArrayList<ClientResponseForAdminDTO>();
 		for (UserAccount client : clients) {
-				ClientResponseForAdminDTO tempObj = new ClientResponseForAdminDTO(client.getIdUserAccount(), client.getEmail(), client.getFirstname(),
-						client.getLastname(), client.getPhone());
-				response.add(tempObj);
+			String agent = "";
+			for(Request request : client.getRequestsFrom()) {
+				if(request.getTitle().equals(CREATE_ACCOUNT_TITLE)) {
+					agent = request.getUserAccountTo().getFirstname() + " " + request.getUserAccountTo().getLastname();
+				}
+			}
+			ClientResponseForAdminDTO tempObj = new ClientResponseForAdminDTO(client.getIdUserAccount(),
+					client.getEmail(), client.getFirstname(), client.getLastname(), client.getPhone(), agent);
+			response.add(tempObj);
 		}
-				
+
 		return response;
+	}
+
+	@Override
+	@Transactional
+	public String assignClient(int agentId, AssignClientRequestDTO request) throws Exception {
+		Optional <UserAccount> agentOpt = userAccountRepository.findById(agentId);
+		if (!agentOpt.isPresent()) {
+			throw new Exception("Agent not found!");
+		}
+		UserAccount agent = agentOpt.get();
+		Role agentRole = roleRepository.findByName(ROLE_AGENT);
+		if (agentRole == null) {
+			throw new Exception("Role not found");
+		}
+		if (!agent.getRole().equals(agentRole)) {
+			throw new Exception("Provided ID is not related to an Agent!");
+		}
+		
+		Role clientRole = roleRepository.findByName(ROLE_CLIENT);
+		if (clientRole == null) {
+			throw new Exception("Role not found");
+		}
+		for (ClientRequestForAdminDTO clientReq:request.getClients()) {
+			Optional <UserAccount> clientOpt = userAccountRepository.findById(clientReq.getIdUserAccount());
+			if (!clientOpt.isPresent()) {
+				throw new Exception("Client not found!");
+			}
+			UserAccount client = clientOpt.get();
+			if (!client.getRole().equals(clientRole)) {
+				throw new Exception("Provided ID is not related to a Client!");
+			}
+			Request assignRequest = new Request();
+			for(Request r : client.getRequestsFrom()) {
+				if(r.getTitle().equals(CREATE_ACCOUNT_TITLE)) {
+					assignRequest = r;
+				}
+			}
+			assignRequest.setTitle(CREATE_ACCOUNT_TITLE);
+			assignRequest.setDescription("I want to open a new account");
+			assignRequest.setTime(new Date());
+			assignRequest.setRequestStatus((byte) 0);
+			assignRequest.setUserAccountFrom(client);
+			assignRequest.setUserAccountTo(agent);
+			requestRepository.save(assignRequest);
+		}
+		
+		return "Success";
 	}
 
 }

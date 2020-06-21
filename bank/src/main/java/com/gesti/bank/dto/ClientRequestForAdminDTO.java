@@ -1,26 +1,6 @@
 package com.gesti.bank.dto;
 
-import java.util.Date;
-import java.util.List;
-
-import javax.persistence.Column;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
-
-import com.gesti.bank.model.Address;
-import com.gesti.bank.model.BankAccount;
-import com.gesti.bank.model.Document;
-import com.gesti.bank.model.Notification;
-import com.gesti.bank.model.Request;
-import com.gesti.bank.model.Role;
-
-public class ClientResponseForAdminDTO {
-	
+public class ClientRequestForAdminDTO {
 	private int idUserAccount;
 
 	private String email;
@@ -33,9 +13,10 @@ public class ClientResponseForAdminDTO {
 	
 	private String agent;
 	
+	private boolean checked;
 
-	public ClientResponseForAdminDTO(int idUserAccount, String email, String firstname, String lastname, String phone,
-			String agent) {
+	public ClientRequestForAdminDTO(int idUserAccount, String email, String firstname, String lastname, String phone,
+			String agent, boolean checked) {
 		super();
 		this.idUserAccount = idUserAccount;
 		this.email = email;
@@ -43,16 +24,9 @@ public class ClientResponseForAdminDTO {
 		this.lastname = lastname;
 		this.phone = phone;
 		this.agent = agent;
+		this.checked = checked;
 	}
 
-	public String getAgent() {
-		return agent;
-	}
-
-	public void setAgent(String agent) {
-		this.agent = agent;
-	}
-	
 	public int getIdUserAccount() {
 		return idUserAccount;
 	}
@@ -93,6 +67,21 @@ public class ClientResponseForAdminDTO {
 		this.phone = phone;
 	}
 
+	public String getAgent() {
+		return agent;
+	}
 
+	public void setAgent(String agent) {
+		this.agent = agent;
+	}
 
+	public boolean isChecked() {
+		return checked;
+	}
+
+	public void setChecked(boolean checked) {
+		this.checked = checked;
+	}
+	
+	
 }

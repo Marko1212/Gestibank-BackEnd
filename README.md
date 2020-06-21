@@ -28,7 +28,7 @@ bancaires pour les clients de la banque, administration et paramétrage des compt
 
 - L'Espace Public: - Permettre à tout le monde de demander l’ouverture de comptes bancaires, permettre à tout le monde de connaître le cours de la devise grâce à un Web service
 
-- L'Espace Admin: - Gestion des agents (CRUD) et recherche des agents (search)
+- L'Espace Admin: - Gestion des agents, gestion des affectations
 
 ## Structure du projet
 

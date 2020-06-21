@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.gesti.bank.dto.AgentResponseDTO;
+import com.gesti.bank.dto.AssignClientRequestDTO;
 import com.gesti.bank.dto.ClientResponseForAdminDTO;
 import com.gesti.bank.dto.CreateAgentRequestDTO;
 import com.gesti.bank.dto.CreateClientRequestDTO;
@@ -32,5 +33,7 @@ public interface UserAccountService {
 	GetAccountResponseDTO getAccount(int id) throws Exception;
 
 	List<ClientResponseForAdminDTO> getInvalidClients() throws Exception;
+
+	String assignClient(int agentId, AssignClientRequestDTO request) throws Exception;
 
 }
