@@ -10,7 +10,7 @@ public class TestController {
 	
 	@GetMapping("/proba")
 	public String testMethod() {
-		return "radi";
+		return "it works!";
 	}
 
 }
