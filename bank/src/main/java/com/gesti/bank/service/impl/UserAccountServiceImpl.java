@@ -105,10 +105,10 @@ public class UserAccountServiceImpl implements UserAccountService {
 		Files.copy(proofSalary.getInputStream(), rootForUser.resolve(proofSalary.getOriginalFilename()));
 
 		Document idDocumentDoc = new Document(IDENTIFICATION_DOCUMENT,
-				rootForUser.toString() + idDocument.getOriginalFilename(), userAccount);
-		Document proofHomeDoc = new Document(PROOF_HOME, rootForUser.toString() + proofHome.getOriginalFilename(),
+				rootForUser.toString() + "\\" + idDocument.getOriginalFilename(), userAccount);
+		Document proofHomeDoc = new Document(PROOF_HOME, rootForUser.toString() + "\\" + proofHome.getOriginalFilename(),
 				userAccount);
-		Document proofSalaryDoc = new Document(PROOF_SALARY, rootForUser.toString() + proofSalary.getOriginalFilename(),
+		Document proofSalaryDoc = new Document(PROOF_SALARY, rootForUser.toString() + "\\" + proofSalary.getOriginalFilename(),
 				userAccount);
 		documentRepository.save(idDocumentDoc);
 		documentRepository.save(proofHomeDoc);
