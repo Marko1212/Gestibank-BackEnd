@@ -10,6 +10,7 @@ import com.gesti.bank.dto.ClientResponseForAdminDTO;
 import com.gesti.bank.dto.CreateAgentRequestDTO;
 import com.gesti.bank.dto.CreateClientRequestDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
+import com.gesti.bank.dto.GetUnresolvedRequestsForAgentResponseDTO;
 import com.gesti.bank.dto.LoginRequestDTO;
 import com.gesti.bank.dto.LoginResponseDTO;
 import com.gesti.bank.dto.UpdateAgentRequestDTO;
@@ -35,5 +36,7 @@ public interface UserAccountService {
 	List<ClientResponseForAdminDTO> getInvalidClients() throws Exception;
 
 	String assignClient(int agentId, AssignClientRequestDTO request) throws Exception;
+
+	List<GetUnresolvedRequestsForAgentResponseDTO> getUnresolvedRequests(int agentId) throws Exception;
 
 }

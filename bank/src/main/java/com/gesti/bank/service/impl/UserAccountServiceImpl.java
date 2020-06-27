@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +20,9 @@ import com.gesti.bank.dto.ClientRequestForAdminDTO;
 import com.gesti.bank.dto.ClientResponseForAdminDTO;
 import com.gesti.bank.dto.CreateAgentRequestDTO;
 import com.gesti.bank.dto.CreateClientRequestDTO;
+import com.gesti.bank.dto.FileInfoResponseDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
+import com.gesti.bank.dto.GetUnresolvedRequestsForAgentResponseDTO;
 import com.gesti.bank.dto.LoginRequestDTO;
 import com.gesti.bank.dto.LoginResponseDTO;
 import com.gesti.bank.dto.UpdateAgentRequestDTO;
@@ -47,6 +50,8 @@ public class UserAccountServiceImpl implements UserAccountService {
 	private final static String PROOF_SALARY = "Salary proof document";
 	
 	private final static String CREATE_ACCOUNT_TITLE = "CREATE_ACCOUNT";
+	
+	private final static String GET_FILES_METHOD_PATH = "/files/getFiles/";
 
 	@Autowired
 	DocumentRepository documentRepository;
@@ -62,6 +67,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 	
 	@Autowired
 	RequestRepository requestRepository;
+	
+	@Value("${environment}")
+	String environment;
 
 	@Override
 	@Transactional
@@ -396,6 +404,40 @@ public class UserAccountServiceImpl implements UserAccountService {
 		}
 		
 		return "Success";
+	}
+
+	@Override
+	public List<GetUnresolvedRequestsForAgentResponseDTO> getUnresolvedRequests(int agentId) throws Exception {
+		Optional<UserAccount> agentOpt = userAccountRepository.findById(agentId);
+		if(!agentOpt.isPresent()) {
+			throw new Exception("User account does not exist!");
+		}
+		UserAccount agent = agentOpt.get();
+		Role agentRole = roleRepository.findByName(ROLE_AGENT);
+		if (agentRole == null) {
+			throw new Exception("Role not found");
+		}
+		if (!agent.getRole().equals(agentRole)) {
+			throw new Exception("Provided ID is not related to an Agent!");
+		}
+		List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatus(agent, (byte) 0);
+		List<GetUnresolvedRequestsForAgentResponseDTO> response = new ArrayList<GetUnresolvedRequestsForAgentResponseDTO>();
+		
+		for(Request r:requests) {
+			List<Document> documents = documentRepository.findAllByUserAccount(r.getUserAccountFrom());
+			List<FileInfoResponseDTO> files = new ArrayList<FileInfoResponseDTO>();
+			for(Document d:documents) {
+				String path = d.getPath();
+				String url = environment + GET_FILES_METHOD_PATH + path.replace("\\", "/");
+				String name = path.substring(path.lastIndexOf("\\") +1);
+				FileInfoResponseDTO tmpFile = new FileInfoResponseDTO(name, url);
+				files.add(tmpFile);
+			}
+			GetUnresolvedRequestsForAgentResponseDTO tmpObj = new GetUnresolvedRequestsForAgentResponseDTO(r.getIdRequest(), r.getTitle(), r.getDescription(), r.getTime(), r.getUserAccountFrom().getIdUserAccount(), r.getUserAccountFrom().getEmail(), r.getUserAccountFrom().getFirstname(), r.getUserAccountFrom().getLastname(), r.getUserAccountFrom().getMarriageStatus(), r.getUserAccountFrom().getNumberOfChildren(), r.getUserAccountFrom().getPass(), r.getUserAccountFrom().getPhone(), r.getUserAccountFrom().getUsername(), r.getUserAccountFrom().getAddress().getAdditionalInfo(), r.getUserAccountFrom().getAddress().getCity(), r.getUserAccountFrom().getAddress().getCountry(), r.getUserAccountFrom().getAddress().getHomeNumber(), r.getUserAccountFrom().getAddress().getStreet(), r.getUserAccountFrom().getAddress().getZip(), files);
+			response.add(tmpObj);
+		}
+		
+		return response;
 	}
 
 }

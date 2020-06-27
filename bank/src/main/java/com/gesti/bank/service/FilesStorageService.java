@@ -11,7 +11,7 @@ public interface FilesStorageService {
 
   public void save(MultipartFile file);
 
-  public Resource load(String filename);
+  public Resource load(String folder, String id, String filename);
 
   public void deleteAll();
 
