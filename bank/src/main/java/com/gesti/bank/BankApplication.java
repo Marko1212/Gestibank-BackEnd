@@ -10,7 +10,6 @@ import com.gesti.bank.service.FilesStorageService;
 
 @SpringBootApplication
 public class BankApplication implements CommandLineRunner {
-
 	@Resource
 	FilesStorageService storageService;
 
