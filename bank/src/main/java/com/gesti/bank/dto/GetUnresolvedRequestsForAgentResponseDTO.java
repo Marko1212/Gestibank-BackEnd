@@ -24,13 +24,14 @@ public class GetUnresolvedRequestsForAgentResponseDTO {
 	private String homeNumber;
 	private String street;
 	private int zip;
+	private boolean valid;
 	
 	List<FileInfoResponseDTO> files;
 
 	public GetUnresolvedRequestsForAgentResponseDTO(int idRequest, String title, String description, Date time,
 			int idClient, String email, String firstname, String lastname, String marriageStatus, int numberOfChildren,
 			String pass, String phone, String username, String additionalInfoAddress, String city, String country,
-			String homeNumber, String street, int zip, List<FileInfoResponseDTO> files) {
+			String homeNumber, String street, int zip, boolean valid, List<FileInfoResponseDTO> files) {
 		super();
 		this.idRequest = idRequest;
 		this.title = title;
@@ -52,6 +53,7 @@ public class GetUnresolvedRequestsForAgentResponseDTO {
 		this.street = street;
 		this.zip = zip;
 		this.files = files;
+		this.valid = valid;
 	}
 
 	public int getIdRequest() {
@@ -213,6 +215,16 @@ public class GetUnresolvedRequestsForAgentResponseDTO {
 	public void setFiles(List<FileInfoResponseDTO> files) {
 		this.files = files;
 	}
+
+	public boolean isValid() {
+		return valid;
+	}
+
+	public void setValid(boolean valid) {
+		this.valid = valid;
+	}
+	
+	
 	
 	
 }
