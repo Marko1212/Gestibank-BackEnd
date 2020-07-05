@@ -26,6 +26,8 @@ import com.gesti.bank.dto.GetUnresolvedRequestsForAgentResponseDTO;
 import com.gesti.bank.dto.LoginRequestDTO;
 import com.gesti.bank.dto.LoginResponseDTO;
 import com.gesti.bank.dto.UpdateAgentRequestDTO;
+import com.gesti.bank.dto.VerifiedClientRequestDTO;
+import com.gesti.bank.dto.VerifiedClientsRequestDTO;
 import com.gesti.bank.model.Address;
 import com.gesti.bank.model.Document;
 import com.gesti.bank.model.Request;
@@ -438,6 +440,70 @@ public class UserAccountServiceImpl implements UserAccountService {
 		}
 		
 		return response;
+	}
+
+	@Override
+	@Transactional
+	public String validation(VerifiedClientsRequestDTO request) throws Exception {
+		for(VerifiedClientRequestDTO obj:request.getValidated()) {
+			
+			Optional<UserAccount> agentOpt = userAccountRepository.findById(obj.getIdAgent());
+			if(!agentOpt.isPresent()) {
+				throw new Exception("User Account does not exist!");
+			}
+			UserAccount agent = agentOpt.get();
+			Role agentRole = roleRepository.findByName(ROLE_AGENT);
+			if (agentRole == null) {
+				throw new Exception("Role not found");
+			}
+			if (!agent.getRole().equals(agentRole)) {
+				throw new Exception("Provided ID is not related to an Agent!");
+			}
+			
+			Optional<UserAccount> clientOpt = userAccountRepository.findById(obj.getIdClient());
+			if(!clientOpt.isPresent()) {
+				throw new Exception("User Account does not exist!");
+			}
+			UserAccount client = clientOpt.get();
+			Role clientRole = roleRepository.findByName(ROLE_CLIENT);
+			if (clientRole == null) {
+				throw new Exception("Role not found");
+			}
+			if (!client.getRole().equals(clientRole)) {
+				throw new Exception("Provided ID is not related to a Client!");
+			}
+			
+			Optional<Request> requestOpt = requestRepository.findById(obj.getIdRequest());
+			
+			if(!requestOpt.isPresent()) {
+				throw new Exception("Request not found!");
+			}
+			
+			Request req = requestOpt.get();
+			
+			if(obj.getIdAgent() != req.getUserAccountTo().getIdUserAccount()) {
+				throw new Exception("You are not assigned to this request!");
+			}
+			
+			if(obj.getIdClient() != req.getUserAccountFrom().getIdUserAccount()) {
+				throw new Exception("Provided client is not associated to this request!");
+			}
+			
+			if(req.getRequestStatus()!=0) {
+				throw new Exception("Provided request is already processed!");
+			}
+			
+			if(client.getValid()!=0) {
+				throw new Exception("Provided client is already processed!");
+			}
+			
+			req.setRequestStatus((byte)1);
+			client.setValid((byte)1);
+			requestRepository.save(req);
+			userAccountRepository.save(client);
+		}
+		// TODO Auto-generated method stub
+		return "Success";
 	}
 
 }

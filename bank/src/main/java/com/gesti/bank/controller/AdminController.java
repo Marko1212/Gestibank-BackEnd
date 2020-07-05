@@ -110,7 +110,6 @@ public class AdminController {
 	public ResponseEntity<String> assignClient(@PathVariable("agentId") int agentId, @RequestBody AssignClientRequestDTO request){
 		String response = "";
 		try {
-			//TODO SERVICE CALL
 			response = userAccountService.assignClient(agentId, request);
 			return new ResponseEntity<String>(response, HttpStatus.OK);
 		} catch (Exception e){

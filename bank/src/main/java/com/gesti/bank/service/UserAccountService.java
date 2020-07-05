@@ -14,6 +14,7 @@ import com.gesti.bank.dto.GetUnresolvedRequestsForAgentResponseDTO;
 import com.gesti.bank.dto.LoginRequestDTO;
 import com.gesti.bank.dto.LoginResponseDTO;
 import com.gesti.bank.dto.UpdateAgentRequestDTO;
+import com.gesti.bank.dto.VerifiedClientsRequestDTO;
 
 public interface UserAccountService {
 
@@ -38,5 +39,7 @@ public interface UserAccountService {
 	String assignClient(int agentId, AssignClientRequestDTO request) throws Exception;
 
 	List<GetUnresolvedRequestsForAgentResponseDTO> getUnresolvedRequests(int agentId) throws Exception;
+
+	String validation(VerifiedClientsRequestDTO request) throws Exception;
 
 }
