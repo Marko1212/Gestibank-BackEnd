@@ -38,6 +38,7 @@ import com.gesti.bank.repository.DocumentRepository;
 import com.gesti.bank.repository.RequestRepository;
 import com.gesti.bank.repository.RoleRepository;
 import com.gesti.bank.repository.UserAccountRepository;
+import com.gesti.bank.service.EmailService;
 import com.gesti.bank.service.UserAccountService;
 
 @Service
@@ -60,6 +61,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 
 	@Autowired
 	AddressRepository addressRepository;
+	
+	@Autowired
+	EmailService emailService;
 
 	@Autowired
 	RoleRepository roleRepository;
@@ -454,7 +458,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 			UserAccount agent = agentOpt.get();
 			Role agentRole = roleRepository.findByName(ROLE_AGENT);
 			if (agentRole == null) {
-				throw new Exception("Role not found");
+				throw new Exception("Role not found!");
 			}
 			if (!agent.getRole().equals(agentRole)) {
 				throw new Exception("Provided ID is not related to an Agent!");
@@ -490,19 +494,20 @@ public class UserAccountServiceImpl implements UserAccountService {
 			}
 			
 			if(req.getRequestStatus()!=0) {
-				throw new Exception("Provided request is already processed!");
+				throw new Exception("Provided request has been already processed!");
 			}
 			
 			if(client.getValid()!=0) {
-				throw new Exception("Provided client is already processed!");
+				throw new Exception("Provided client has been already processed!");
 			}
 			
 			req.setRequestStatus((byte)1);
 			client.setValid((byte)1);
 			requestRepository.save(req);
 			userAccountRepository.save(client);
+			emailService.sendVerificationEmail(client.getFirstname(), client.getUsername(), client.getPass(), client.getEmail());
 		}
-		// TODO Auto-generated method stub
+		
 		return "Success";
 	}
 

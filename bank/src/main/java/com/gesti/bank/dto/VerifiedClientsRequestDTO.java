@@ -5,8 +5,6 @@ import java.util.List;
 public class VerifiedClientsRequestDTO {
 	
 	private List<VerifiedClientRequestDTO> validated;
-
-	
 	
 	public VerifiedClientsRequestDTO() {
 		super();
