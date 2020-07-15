@@ -38,6 +38,7 @@ import com.gesti.bank.repository.DocumentRepository;
 import com.gesti.bank.repository.RequestRepository;
 import com.gesti.bank.repository.RoleRepository;
 import com.gesti.bank.repository.UserAccountRepository;
+import com.gesti.bank.service.BankAccountService;
 import com.gesti.bank.service.EmailService;
 import com.gesti.bank.service.UserAccountService;
 
@@ -64,6 +65,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 	
 	@Autowired
 	EmailService emailService;
+	
+	@Autowired
+	BankAccountService bankAccountService;
 
 	@Autowired
 	RoleRepository roleRepository;
@@ -505,6 +509,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 			client.setValid((byte)1);
 			requestRepository.save(req);
 			userAccountRepository.save(client);
+			bankAccountService.createInitialBankAccount(client);
 			emailService.sendVerificationEmail(client.getFirstname(), client.getUsername(), client.getPass(), client.getEmail());
 		}
 		

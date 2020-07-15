@@ -29,12 +29,12 @@ public class Transaction implements Serializable {
 	//bi-directional many-to-one association to BankAccount
 	@ManyToOne
 	@JoinColumn(name="bank_account_id_bank_account_from")
-	private BankAccount bankAccount1;
+	private BankAccount bankAccountFrom;
 
 	//bi-directional many-to-one association to BankAccount
 	@ManyToOne
 	@JoinColumn(name="bank_account_id_bank_account_to")
-	private BankAccount bankAccount2;
+	private BankAccount bankAccountTo;
 
 	//bi-directional many-to-one association to TransactionType
 	@ManyToOne
@@ -76,20 +76,22 @@ public class Transaction implements Serializable {
 		this.time = time;
 	}
 
-	public BankAccount getBankAccount1() {
-		return this.bankAccount1;
+	
+
+	public BankAccount getBankAccountFrom() {
+		return bankAccountFrom;
 	}
 
-	public void setBankAccount1(BankAccount bankAccount1) {
-		this.bankAccount1 = bankAccount1;
+	public void setBankAccountFrom(BankAccount bankAccountFrom) {
+		this.bankAccountFrom = bankAccountFrom;
 	}
 
-	public BankAccount getBankAccount2() {
-		return this.bankAccount2;
+	public BankAccount getBankAccountTo() {
+		return bankAccountTo;
 	}
 
-	public void setBankAccount2(BankAccount bankAccount2) {
-		this.bankAccount2 = bankAccount2;
+	public void setBankAccountTo(BankAccount bankAccountTo) {
+		this.bankAccountTo = bankAccountTo;
 	}
 
 	public TransactionType getTransactionType() {

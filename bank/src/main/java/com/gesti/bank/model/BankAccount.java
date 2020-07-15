@@ -42,12 +42,12 @@ public class BankAccount implements Serializable {
 	private BankRule bankRule;
 
 	//bi-directional many-to-one association to Transaction
-	@OneToMany(mappedBy="bankAccount1")
-	private List<Transaction> transactions1;
+	@OneToMany(mappedBy="bankAccountFrom")
+	private List<Transaction> transactionsFrom;
 
 	//bi-directional many-to-one association to Transaction
-	@OneToMany(mappedBy="bankAccount2")
-	private List<Transaction> transactions2;
+	@OneToMany(mappedBy="bankAccountTo")
+	private List<Transaction> transactionsTo;
 
 	public BankAccount() {
 	}
@@ -100,48 +100,48 @@ public class BankAccount implements Serializable {
 		this.bankRule = bankRule;
 	}
 
-	public List<Transaction> getTransactions1() {
-		return this.transactions1;
+	public List<Transaction> getTransactionsFrom() {
+		return this.transactionsFrom;
 	}
 
-	public void setTransactions1(List<Transaction> transactions1) {
-		this.transactions1 = transactions1;
+	public void setTransactionsFrom(List<Transaction> transactionsFrom) {
+		this.transactionsFrom = transactionsFrom;
 	}
 
-	public Transaction addTransactions1(Transaction transactions1) {
-		getTransactions1().add(transactions1);
-		transactions1.setBankAccount1(this);
+	public Transaction addTransactionsFrom(Transaction transactionsFrom) {
+		getTransactionsFrom().add(transactionsFrom);
+		transactionsFrom.setBankAccountFrom(this);
 
-		return transactions1;
+		return transactionsFrom;
 	}
 
-	public Transaction removeTransactions1(Transaction transactions1) {
-		getTransactions1().remove(transactions1);
-		transactions1.setBankAccount1(null);
+	public Transaction removeTransactionsFrom(Transaction transactionsFrom) {
+		getTransactionsFrom().remove(transactionsFrom);
+		transactionsFrom.setBankAccountFrom(null);
 
-		return transactions1;
+		return transactionsFrom;
 	}
 
-	public List<Transaction> getTransactions2() {
-		return this.transactions2;
+	public List<Transaction> getTransactionsTo() {
+		return this.transactionsTo;
 	}
 
-	public void setTransactions2(List<Transaction> transactions2) {
-		this.transactions2 = transactions2;
+	public void setTransactionsTo(List<Transaction> transactionsTo) {
+		this.transactionsTo = transactionsTo;
 	}
 
-	public Transaction addTransactions2(Transaction transactions2) {
-		getTransactions2().add(transactions2);
-		transactions2.setBankAccount2(this);
+	public Transaction addTransactionsTo(Transaction transactionsTo) {
+		getTransactionsTo().add(transactionsTo);
+		transactionsTo.setBankAccountTo(this);
 
-		return transactions2;
+		return transactionsTo;
 	}
 
-	public Transaction removeTransactions2(Transaction transactions2) {
-		getTransactions2().remove(transactions2);
-		transactions2.setBankAccount2(null);
+	public Transaction removeTransactionsTo(Transaction transactionsTo) {
+		getTransactionsTo().remove(transactionsTo);
+		transactionsTo.setBankAccountTo(null);
 
-		return transactions2;
+		return transactionsTo;
 	}
 
 }
