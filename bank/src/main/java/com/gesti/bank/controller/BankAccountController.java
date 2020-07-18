@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gesti.bank.dto.BankAccountResponseDTO;
+import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.service.BankAccountService;
 
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
@@ -34,4 +35,16 @@ public class BankAccountController {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	@GetMapping("/getBankAccount/{id}")
+	public ResponseEntity<BankAccountResponseDTO> getAccount(@PathVariable int id) {
+		BankAccountResponseDTO response = null;
+		try {
+			response = bankAccountService.getBankAccount(id);
+			return new ResponseEntity<BankAccountResponseDTO>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<BankAccountResponseDTO>(response, HttpStatus.BAD_REQUEST);
+		}
+	}
+		
 }

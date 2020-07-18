@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gesti.bank.dto.BankAccountResponseDTO;
+import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.model.BankAccount;
 import com.gesti.bank.model.BankAccountType;
 import com.gesti.bank.model.BankRule;
@@ -113,6 +114,17 @@ public class BankAccountServiceImpl implements BankAccountService{
 		if(response.isEmpty()) {
 			throw new Exception("There is no bank account");
 		}
+		return response;
+	}
+
+	@Override
+	public BankAccountResponseDTO getBankAccount(int id) throws Exception {
+		Optional<BankAccount> bankAccountOpt = bankAccountRepository.findById(id);
+		if (!bankAccountOpt.isPresent()) {
+			throw new Exception("Bank account with provided ID does not exist!");
+		}
+		BankAccount bankAcc = bankAccountOpt.get();
+		BankAccountResponseDTO response = new BankAccountResponseDTO(bankAcc.getIdBankAccount(), bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(), bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(), bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(), bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(), bankAcc.getBankRule().getRuleName());
 		return response;
 	}
 
