@@ -1,5 +1,6 @@
 package com.gesti.bank.service.impl;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -7,13 +8,17 @@ import java.util.Random;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.gesti.bank.dto.BankAccountResponseDTO;
 import com.gesti.bank.model.BankAccount;
 import com.gesti.bank.model.BankAccountType;
 import com.gesti.bank.model.BankRule;
+import com.gesti.bank.model.Request;
 import com.gesti.bank.model.UserAccount;
 import com.gesti.bank.repository.BankAccountRepository;
 import com.gesti.bank.repository.BankAccountTypeRepository;
 import com.gesti.bank.repository.BankRuleRepository;
+import com.gesti.bank.repository.RequestRepository;
+import com.gesti.bank.repository.UserAccountRepository;
 import com.gesti.bank.service.BankAccountService;
 
 @Service
@@ -21,6 +26,10 @@ public class BankAccountServiceImpl implements BankAccountService{
 	
 	private final static int INITIAL_BANK_ACCOUNT_ID = 1;
 	private final static int INITIAL_RULE_ID = 1;
+	
+	private final static String ROLE_ADMIN = "admin";
+	private final static String ROLE_CLIENT = "client";
+	private final static String ROLE_AGENT = "agent";
 
 	@Autowired
 	BankAccountRepository bankAccountRepository;
@@ -30,6 +39,12 @@ public class BankAccountServiceImpl implements BankAccountService{
 	
 	@Autowired
 	BankRuleRepository bankRuleRepository;
+	
+	@Autowired
+	UserAccountRepository userAccountRepository;
+	
+	@Autowired
+	RequestRepository requestRepository;
 	
 	@Override
 	public void createInitialBankAccount(UserAccount client) throws Exception {
@@ -65,6 +80,40 @@ public class BankAccountServiceImpl implements BankAccountService{
 			return generateBankAccountNumber();
 		}
 		return generatedBankAccountNumber;
+	}
+
+	@Override
+	public List<BankAccountResponseDTO> getBankAccounts(int id) throws Exception {
+		Optional<UserAccount> loggedInUserOpt = userAccountRepository.findById(id);
+		if (!loggedInUserOpt.isPresent()) {
+			throw new Exception("User with provided ID does not exist!");
+		}
+		UserAccount loggedInUser = loggedInUserOpt.get();
+		if (loggedInUser.getValid() == 0) {
+			throw new Exception("User with provided credentials is not valid!");
+		}
+		List<BankAccountResponseDTO> response = new ArrayList<BankAccountResponseDTO>();
+		if (loggedInUser.getRole().getName().equals(ROLE_AGENT)) {
+			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatus(loggedInUser, (byte) 1);
+			for(Request r:requests) {
+				UserAccount client = r.getUserAccountFrom();
+				for(BankAccount bankAcc:client.getBankAccounts()) {
+					BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(), bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(), bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(), bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(), bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(), bankAcc.getBankRule().getRuleName());
+					response.add(tmpObj);
+				}
+			}
+		}else if (loggedInUser.getRole().getName().equals(ROLE_CLIENT)) {
+			for(BankAccount bankAcc:loggedInUser.getBankAccounts()) {
+				BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(), bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(), bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(), bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(), bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(), bankAcc.getBankRule().getRuleName());
+				response.add(tmpObj);
+			}
+		}else {
+			throw new Exception("You don't have a permission for this action!");
+		}
+		if(response.isEmpty()) {
+			throw new Exception("There is no bank account");
+		}
+		return response;
 	}
 
 }

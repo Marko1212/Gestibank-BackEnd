@@ -16,8 +16,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gesti.bank.dto.AssignClientRequestDTO;
+import com.gesti.bank.dto.BankAccountResponseDTO;
 import com.gesti.bank.dto.GetUnresolvedRequestsForAgentResponseDTO;
 import com.gesti.bank.dto.VerifiedClientsRequestDTO;
+import com.gesti.bank.model.BankAccount;
+import com.gesti.bank.service.BankAccountService;
 import com.gesti.bank.service.UserAccountService;
 
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
@@ -50,4 +53,5 @@ public class AgentController {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
+	
 }
