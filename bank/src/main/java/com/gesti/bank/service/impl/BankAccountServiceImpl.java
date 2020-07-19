@@ -233,13 +233,13 @@ public class BankAccountServiceImpl implements BankAccountService{
 		
 		Optional<BankAccountType> bankAccountTypeOpt = bankAccountTypeRepository.findById(request.getIdBankAccountType());
 		if(!bankAccountTypeOpt.isPresent()) {
-			throw new Exception("Bank account type doesn't exist");
+			throw new Exception("Bank account type does not exist!");
 		}
 		BankAccountType bankAccountType = bankAccountTypeOpt.get();
 		
 		Optional<BankRule> bankRuleOpt = bankRuleRepository.findById(request.getIdBankRules());
 		if(!bankRuleOpt.isPresent()) {
-			throw new Exception("Bank rule doesn't exist");
+			throw new Exception("Bank rule does not exist!");
 		}
 		BankRule bankRule = bankRuleOpt.get();
 		
@@ -248,6 +248,12 @@ public class BankAccountServiceImpl implements BankAccountService{
 		
 		bankAccountRepository.save(bankAcc);
 		return "Success";
+	}
+
+	@Override
+	public String deactivateBankAccount(int id, int userID) throws Exception {
+		// TODO Auto-generated method stub
+		return null;
 	}
 
 }

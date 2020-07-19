@@ -23,4 +23,6 @@ public interface BankAccountService {
 
 	String modifyBankAccount(ModifyBankAccountRequestDTO request, int userID) throws Exception;
 
+	String deactivateBankAccount(int id, int userID) throws Exception;
+
 }

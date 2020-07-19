@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -49,6 +50,18 @@ public class BankAccountController {
 			return new ResponseEntity<BankAccountResponseDTO>(response, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@DeleteMapping("/deactivateBankAccount/{id}/{userID}")
+	public ResponseEntity<?> deactivateBankAccount(@PathVariable int id, @PathVariable int userID) {
+		String response;
+		try {
+			response = bankAccountService.deactivateBankAccount(id, userID);
+			return new ResponseEntity<String>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			response = e.getMessage();
+			return new ResponseEntity<String>(response, HttpStatus.BAD_REQUEST);
 		}
 	}
 	

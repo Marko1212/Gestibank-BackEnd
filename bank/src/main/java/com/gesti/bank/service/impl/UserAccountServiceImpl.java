@@ -288,23 +288,23 @@ public class UserAccountServiceImpl implements UserAccountService {
 		}
 		boolean canDelete = true;
 		if (agent.getRequestsFrom().size() > 0) {
-			System.out.println("I am in first block");
+			
 			canDelete = false;
 		}
 		if (agent.getRequestsTo().size() > 0) {
-			System.out.println("I am in second block");
+			
 			canDelete = false;
 		}
 		if (agent.getBankAccounts().size() > 0) {
-			System.out.println("I am in third block");
+			
 			canDelete = false;
 		}
 		if (agent.getNotifications().size() > 0) {
-			System.out.println("I am in fourth block");
+			
 			canDelete = false;
 		}
 		if (agent.getDocuments().size() > 0) {
-			System.out.println("I am in fifth block");
+			
 			canDelete = false;
 		}
 		if (canDelete) {
