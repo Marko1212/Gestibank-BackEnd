@@ -252,8 +252,43 @@ public class BankAccountServiceImpl implements BankAccountService{
 
 	@Override
 	public String deactivateBankAccount(int id, int userID) throws Exception {
-		// TODO Auto-generated method stub
-		return null;
-	}
+		Optional<UserAccount> userAccountOpt = userAccountRepository.findById(userID);
+		if (!userAccountOpt.isPresent()) {
+			throw new Exception("User account with provided ID does not exist!");
+		}
+		UserAccount user = userAccountOpt.get();
+		Optional<BankAccount> bankAccountOpt = bankAccountRepository.findById(id);
+		if (!bankAccountOpt.isPresent()) {
+			throw new Exception("Bank account with provided ID does not exist!");
+		}
+		BankAccount bankAcc = bankAccountOpt.get();
+		if (user.getRole().getName().equals(ROLE_AGENT)) {
+			boolean havePermission = false;
+			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatus(user, (byte) 1);
+			for(Request r:requests) {
+				if(havePermission) {
+					break;
+				}
+				UserAccount client = r.getUserAccountFrom();
+				for(BankAccount tmpBankAcc:client.getBankAccounts()) {
+					if(tmpBankAcc.getIdBankAccount() == bankAcc.getIdBankAccount()) {
+						havePermission = true;
+						break;
+					}
+				}
+			}
+			if(!havePermission) {
+				throw new Exception("That is not your client!");
+			} 
+			} else 
+				{
+				throw new Exception("You dont have a permission!");
+				}
+			bankAcc.setBankAccountStatus((byte) 0);
+			
+			bankAccountRepository.save(bankAcc);
+			return "Success";
 
+	}
+	
 }
