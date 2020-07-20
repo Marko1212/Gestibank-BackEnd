@@ -262,6 +262,9 @@ public class BankAccountServiceImpl implements BankAccountService{
 			throw new Exception("Bank account with provided ID does not exist!");
 		}
 		BankAccount bankAcc = bankAccountOpt.get();
+		if (bankAcc.getBankAccountStatus()==(byte) 0) {
+			throw new Exception("Bank account with provided ID is not active!");
+		}
 		if (user.getRole().getName().equals(ROLE_AGENT)) {
 			boolean havePermission = false;
 			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatus(user, (byte) 1);
