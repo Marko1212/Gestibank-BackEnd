@@ -11,4 +11,5 @@ import com.gesti.bank.model.UserAccount;
 @Repository
 public interface RequestRepository extends JpaRepository<Request, Integer>{
 	List<Request> findAllByUserAccountToAndRequestStatus(UserAccount agent, byte requestStatus);
+	List<Request> findAllByUserAccountFromAndRequestStatus(UserAccount client, byte requestStatus);
 }
