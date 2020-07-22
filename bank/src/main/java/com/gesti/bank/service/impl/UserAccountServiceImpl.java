@@ -10,6 +10,7 @@ import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -519,7 +520,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 	}
 
 	@Override
-	public List<AgentResponseDTO> getAgentOfClient(int idClient) throws Exception {
+	public AgentResponseDTO getAgentOfClient(int idClient) throws Exception {
 		Optional<UserAccount> clientOpt = userAccountRepository.findById(idClient);
 		if(!clientOpt.isPresent()) {
 			throw new Exception("User account does not exist!");
@@ -533,23 +534,36 @@ public class UserAccountServiceImpl implements UserAccountService {
 			throw new Exception("Provided ID is not related to a Client!");
 		}
 		
-		List<AgentResponseDTO> response = new ArrayList<AgentResponseDTO>();
+		//List<AgentResponseDTO> response = new ArrayList<AgentResponseDTO>();
 		
-		List<Request> requests = requestRepository.findAllByUserAccountFromAndRequestStatus(client, (byte) 1);
-		
-		for(Request r:requests) {
-
-			UserAccount agent = r.getUserAccountTo();
-			
-				if (agent.getEndDate() == null) {
-					AgentResponseDTO tempObj = new AgentResponseDTO(agent.getEmail(), agent.getFirstname(),
-							agent.getLastname(), agent.getPhone(), agent.getUsername(),
-							agent.getAddress().getAdditionalInfo(), agent.getAddress().getCity(),
-							agent.getAddress().getCountry(), agent.getAddress().getHomeNumber(),
-							agent.getAddress().getStreet(), agent.getAddress().getZip(), agent.getIdUserAccount());
-					response.add(tempObj);
-				}
-			}
+//		List<Request> requests = requestRepository.findAllByUserAccountFromAndRequestStatus(client, (byte) 1);
+//		
+//		for(Request r:requests) {
+//
+//			UserAccount agent = r.getUserAccountTo();
+//			
+//				if (agent.getEndDate() == null) {
+//					AgentResponseDTO tempObj = new AgentResponseDTO(agent.getEmail(), agent.getFirstname(),
+//							agent.getLastname(), agent.getPhone(), agent.getUsername(),
+//							agent.getAddress().getAdditionalInfo(), agent.getAddress().getCity(),
+//							agent.getAddress().getCountry(), agent.getAddress().getHomeNumber(),
+//							agent.getAddress().getStreet(), agent.getAddress().getZip(), agent.getIdUserAccount());
+//					response.add(tempObj);
+//					break;
+//				}
+// 					
+//			}
+		Optional<UserAccount> agentOpt = Optional.ofNullable(requestRepository.fetchAgentForClient(PageRequest.of(0,1), client, (byte) 1)).filter(list -> !list.isEmpty()).map(list -> list.get(0));
+		if(!agentOpt.isPresent()) {
+			throw new Exception("You have no valid agent!");
+		}
+		UserAccount agent = agentOpt.get();
+		AgentResponseDTO response = new AgentResponseDTO(agent.getEmail(), agent.getFirstname(),
+				agent.getLastname(), agent.getPhone(), agent.getUsername(),
+				agent.getAddress().getAdditionalInfo(), agent.getAddress().getCity(),
+				agent.getAddress().getCountry(), agent.getAddress().getHomeNumber(),
+				agent.getAddress().getStreet(), agent.getAddress().getZip(), agent.getIdUserAccount());
+		//response.add(tempObj);
 		return response;
 		
 	}

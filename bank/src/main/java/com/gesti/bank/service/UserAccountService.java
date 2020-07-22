@@ -42,6 +42,6 @@ public interface UserAccountService {
 
 	String validation(VerifiedClientsRequestDTO request) throws Exception;
 
-	List<AgentResponseDTO> getAgentOfClient(int idClient) throws Exception;
+	AgentResponseDTO getAgentOfClient(int idClient) throws Exception;
 
 }

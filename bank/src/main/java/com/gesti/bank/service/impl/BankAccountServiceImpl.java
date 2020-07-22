@@ -26,37 +26,37 @@ import com.gesti.bank.repository.UserAccountRepository;
 import com.gesti.bank.service.BankAccountService;
 
 @Service
-public class BankAccountServiceImpl implements BankAccountService{
-	
+public class BankAccountServiceImpl implements BankAccountService {
+
 	private final static int INITIAL_BANK_ACCOUNT_ID = 1;
 	private final static int INITIAL_RULE_ID = 1;
-	
+
 	private final static String ROLE_ADMIN = "admin";
 	private final static String ROLE_CLIENT = "client";
 	private final static String ROLE_AGENT = "agent";
 
 	@Autowired
 	BankAccountRepository bankAccountRepository;
-	
+
 	@Autowired
 	BankAccountTypeRepository bankAccountTypeRepository;
-	
+
 	@Autowired
 	BankRuleRepository bankRuleRepository;
-	
+
 	@Autowired
 	UserAccountRepository userAccountRepository;
-	
+
 	@Autowired
 	RequestRepository requestRepository;
-	
+
 	@Override
 	public void createInitialBankAccount(UserAccount client) throws Exception {
 		// TODO Auto-generated method stub
-		BankAccount bankAccount = new BankAccount();		
+		BankAccount bankAccount = new BankAccount();
 		bankAccount.setBankAccountNumber(generateBankAccountNumber());
 		Optional<BankAccountType> initialTypeOpt = bankAccountTypeRepository.findById(INITIAL_BANK_ACCOUNT_ID);
-		if(!initialTypeOpt.isPresent()) {
+		if (!initialTypeOpt.isPresent()) {
 			throw new Exception("Bank account type with provided id does not exist!");
 		}
 		BankAccountType initialType = initialTypeOpt.get();
@@ -64,23 +64,24 @@ public class BankAccountServiceImpl implements BankAccountService{
 		bankAccount.setBankAccountType(initialType);
 		bankAccount.setUserAccount(client);
 		Optional<BankRule> initialBankRuleOpt = bankRuleRepository.findById(INITIAL_RULE_ID);
-		if(!initialBankRuleOpt.isPresent()) {
+		if (!initialBankRuleOpt.isPresent()) {
 			throw new Exception("Bank rule with provided id does not exist!");
 		}
 		BankRule initialBankRule = initialBankRuleOpt.get();
 		bankAccount.setBankRule(initialBankRule);
 		bankAccountRepository.save(bankAccount);
 	}
-	
+
 	private String generateBankAccountNumber() {
 		StringBuilder sb = new StringBuilder();
 		Random random = new Random();
-		for(int i=0; i<10; i++) {
+		for (int i = 0; i < 10; i++) {
 			sb.append(random.nextInt(10));
 		}
 		String generatedBankAccountNumber = sb.toString();
-		List<BankAccount> checkNumberList = bankAccountRepository.findAllByBankAccountNumber(generatedBankAccountNumber);
-		if(checkNumberList!=null && !checkNumberList.isEmpty()) {
+		List<BankAccount> checkNumberList = bankAccountRepository
+				.findAllByBankAccountNumber(generatedBankAccountNumber);
+		if (checkNumberList != null && !checkNumberList.isEmpty()) {
 			return generateBankAccountNumber();
 		}
 		return generatedBankAccountNumber;
@@ -99,26 +100,36 @@ public class BankAccountServiceImpl implements BankAccountService{
 		List<BankAccountResponseDTO> response = new ArrayList<BankAccountResponseDTO>();
 		if (loggedInUser.getRole().getName().equals(ROLE_AGENT)) {
 			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatus(loggedInUser, (byte) 1);
-			for(Request r:requests) {
+			for (Request r : requests) {
 				UserAccount client = r.getUserAccountFrom();
-				for(BankAccount bankAcc:client.getBankAccounts()) {
-					if (bankAcc.getBankAccountStatus()==(byte) 1) {
-					BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(), bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(), bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(), bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(), bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(), bankAcc.getBankRule().getRuleName());
-					response.add(tmpObj);
+				for (BankAccount bankAcc : client.getBankAccounts()) {
+					if (bankAcc.getBankAccountStatus() == (byte) 1) {
+						BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
+								bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(),
+								bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
+								bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
+								bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
+								bankAcc.getBankRule().getRuleName());
+						response.add(tmpObj);
 					}
 				}
 			}
-		}else if (loggedInUser.getRole().getName().equals(ROLE_CLIENT)) {
-			for(BankAccount bankAcc:loggedInUser.getBankAccounts()) {
+		} else if (loggedInUser.getRole().getName().equals(ROLE_CLIENT)) {
+			for (BankAccount bankAcc : loggedInUser.getBankAccounts()) {
 				if (bankAcc.getBankAccountStatus() == (byte) 1) {
-				BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(), bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(), bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(), bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(), bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(), bankAcc.getBankRule().getRuleName());
-				response.add(tmpObj);
+					BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
+							bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(),
+							bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
+							bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
+							bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
+							bankAcc.getBankRule().getRuleName());
+					response.add(tmpObj);
 				}
 			}
-		}else {
+		} else {
 			throw new Exception("You don't have a permission for this action!");
 		}
-		if(response.isEmpty()) {
+		if (response.isEmpty()) {
 			throw new Exception("There is no bank account");
 		}
 		return response;
@@ -136,33 +147,38 @@ public class BankAccountServiceImpl implements BankAccountService{
 			throw new Exception("Bank account with provided ID does not exist!");
 		}
 		BankAccount bankAcc = bankAccountOpt.get();
-		if (bankAcc.getBankAccountStatus()== (byte) 0) {
+		if (bankAcc.getBankAccountStatus() == (byte) 0) {
 			throw new Exception("Bank account with provided ID is not active!");
 		}
 		if (user.getRole().getName().equals(ROLE_AGENT)) {
 			boolean havePermission = false;
 			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatus(user, (byte) 1);
-			for(Request r:requests) {
-				if(havePermission) {
+			for (Request r : requests) {
+				if (havePermission) {
 					break;
 				}
 				UserAccount client = r.getUserAccountFrom();
-				for(BankAccount tmpBankAcc:client.getBankAccounts()) {
-					if(tmpBankAcc.getIdBankAccount() == bankAcc.getIdBankAccount()) {
+				for (BankAccount tmpBankAcc : client.getBankAccounts()) {
+					if (tmpBankAcc.getIdBankAccount() == bankAcc.getIdBankAccount()) {
 						havePermission = true;
 						break;
 					}
 				}
 			}
-			if(!havePermission) {
+			if (!havePermission) {
 				throw new Exception("That is not your client!");
 			}
-		}else if(user.getRole().getName().equals(ROLE_CLIENT)){
-			if(bankAcc.getUserAccount().getIdUserAccount() != user.getIdUserAccount()) {
+		} else if (user.getRole().getName().equals(ROLE_CLIENT)) {
+			if (bankAcc.getUserAccount().getIdUserAccount() != user.getIdUserAccount()) {
 				throw new Exception("That is not your account!");
 			}
 		}
-		BankAccountResponseDTO response = new BankAccountResponseDTO(bankAcc.getIdBankAccount(), bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(), bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(), bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(), bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(), bankAcc.getBankRule().getRuleName());
+		BankAccountResponseDTO response = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
+				bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(),
+				bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
+				bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
+				bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
+				bankAcc.getBankRule().getRuleName());
 		return response;
 	}
 
@@ -170,7 +186,7 @@ public class BankAccountServiceImpl implements BankAccountService{
 	public List<BankAccountTypeResponseDTO> getBankAccountTypes() throws Exception {
 		List<BankAccountTypeResponseDTO> response = new ArrayList<BankAccountTypeResponseDTO>();
 		List<BankAccountType> catchTypes = bankAccountTypeRepository.findAll();
-		for(BankAccountType bat:catchTypes) {
+		for (BankAccountType bat : catchTypes) {
 			BankAccountTypeResponseDTO tmpResObj = new BankAccountTypeResponseDTO();
 			tmpResObj.setIdBankAccountType(bat.getIdBankAccountType());
 			tmpResObj.setName(bat.getName());
@@ -183,7 +199,7 @@ public class BankAccountServiceImpl implements BankAccountService{
 	public List<BankRuleResponseDTO> getBankRules() throws Exception {
 		List<BankRuleResponseDTO> response = new ArrayList<BankRuleResponseDTO>();
 		List<BankRule> catchRules = bankRuleRepository.findAll();
-		for(BankRule br:catchRules) {
+		for (BankRule br : catchRules) {
 			BankRuleResponseDTO tmpResObj = new BankRuleResponseDTO();
 			tmpResObj.setIdBankRules(br.getIdBankRules());
 			tmpResObj.setPercent(br.getPercent());
@@ -199,53 +215,54 @@ public class BankAccountServiceImpl implements BankAccountService{
 		if (!userAccountOpt.isPresent()) {
 			throw new Exception("User account with provided ID does not exist");
 		}
-		
+
 		UserAccount user = userAccountOpt.get();
 		Optional<BankAccount> bankAccountOpt = bankAccountRepository.findById(request.getIdBankAccount());
 		if (!bankAccountOpt.isPresent()) {
 			throw new Exception("Bank account with provided ID does not exist!");
 		}
 		BankAccount bankAcc = bankAccountOpt.get();
-		if (bankAcc.getBankAccountStatus()==(byte) 0) {
+		if (bankAcc.getBankAccountStatus() == (byte) 0) {
 			throw new Exception("Bank account with provided ID is not active!");
 		}
 		if (user.getRole().getName().equals(ROLE_AGENT)) {
 			boolean havePermission = false;
 			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatus(user, (byte) 1);
-			for(Request r:requests) {
-				if(havePermission) {
+			for (Request r : requests) {
+				if (havePermission) {
 					break;
 				}
 				UserAccount client = r.getUserAccountFrom();
-				for(BankAccount tmpBankAcc:client.getBankAccounts()) {
-					if(tmpBankAcc.getIdBankAccount() == bankAcc.getIdBankAccount()) {
+				for (BankAccount tmpBankAcc : client.getBankAccounts()) {
+					if (tmpBankAcc.getIdBankAccount() == bankAcc.getIdBankAccount()) {
 						havePermission = true;
 						break;
 					}
 				}
 			}
-			if(!havePermission) {
+			if (!havePermission) {
 				throw new Exception("That is not your client!");
 			}
-		}else {
+		} else {
 			throw new Exception("You dont have a permission!");
 		}
-		
-		Optional<BankAccountType> bankAccountTypeOpt = bankAccountTypeRepository.findById(request.getIdBankAccountType());
-		if(!bankAccountTypeOpt.isPresent()) {
+
+		Optional<BankAccountType> bankAccountTypeOpt = bankAccountTypeRepository
+				.findById(request.getIdBankAccountType());
+		if (!bankAccountTypeOpt.isPresent()) {
 			throw new Exception("Bank account type does not exist!");
 		}
 		BankAccountType bankAccountType = bankAccountTypeOpt.get();
-		
+
 		Optional<BankRule> bankRuleOpt = bankRuleRepository.findById(request.getIdBankRules());
-		if(!bankRuleOpt.isPresent()) {
+		if (!bankRuleOpt.isPresent()) {
 			throw new Exception("Bank rule does not exist!");
 		}
 		BankRule bankRule = bankRuleOpt.get();
-		
+
 		bankAcc.setBankAccountType(bankAccountType);
 		bankAcc.setBankRule(bankRule);
-		
+
 		bankAccountRepository.save(bankAcc);
 		return "Success";
 	}
@@ -262,36 +279,35 @@ public class BankAccountServiceImpl implements BankAccountService{
 			throw new Exception("Bank account with provided ID does not exist!");
 		}
 		BankAccount bankAcc = bankAccountOpt.get();
-		if (bankAcc.getBankAccountStatus()==(byte) 0) {
+		if (bankAcc.getBankAccountStatus() == (byte) 0) {
 			throw new Exception("Bank account with provided ID is not active!");
 		}
 		if (user.getRole().getName().equals(ROLE_AGENT)) {
 			boolean havePermission = false;
 			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatus(user, (byte) 1);
-			for(Request r:requests) {
-				if(havePermission) {
+			for (Request r : requests) {
+				if (havePermission) {
 					break;
 				}
 				UserAccount client = r.getUserAccountFrom();
-				for(BankAccount tmpBankAcc:client.getBankAccounts()) {
-					if(tmpBankAcc.getIdBankAccount() == bankAcc.getIdBankAccount()) {
+				for (BankAccount tmpBankAcc : client.getBankAccounts()) {
+					if (tmpBankAcc.getIdBankAccount() == bankAcc.getIdBankAccount()) {
 						havePermission = true;
 						break;
 					}
 				}
 			}
-			if(!havePermission) {
+			if (!havePermission) {
 				throw new Exception("That is not your client!");
-			} 
-			} else 
-				{
-				throw new Exception("You dont have a permission!");
-				}
-			bankAcc.setBankAccountStatus((byte) 0);
-			
-			bankAccountRepository.save(bankAcc);
-			return "Success";
+			}
+		} else {
+			throw new Exception("You dont have a permission!");
+		}
+		bankAcc.setBankAccountStatus((byte) 0);
+
+		bankAccountRepository.save(bankAcc);
+		return "Success";
 
 	}
-	
+
 }

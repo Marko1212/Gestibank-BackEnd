@@ -29,13 +29,14 @@ public class ClientController {
 	UserAccountService userAccountService;
 	
 	@GetMapping("/{idClient}/conseiller")
-	public ResponseEntity<List<AgentResponseDTO>> getAccount(@PathVariable int idClient) {
-		List<AgentResponseDTO> response = null;
+	public ResponseEntity<?> getAgentOfClient(@PathVariable int idClient) {
+		AgentResponseDTO response = null;
 		try {
 			response = userAccountService.getAgentOfClient(idClient);
-			return new ResponseEntity<List<AgentResponseDTO>>(response, HttpStatus.OK);
+			return new ResponseEntity<AgentResponseDTO>(response, HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<List<AgentResponseDTO>>(response, HttpStatus.BAD_REQUEST);
+			e.printStackTrace();
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
