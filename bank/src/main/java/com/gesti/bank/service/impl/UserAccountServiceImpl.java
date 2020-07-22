@@ -16,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.gesti.bank.dto.AgentResponseDTO;
 import com.gesti.bank.dto.AssignClientRequestDTO;
+import com.gesti.bank.dto.BankAccountResponseDTO;
 import com.gesti.bank.dto.ClientRequestForAdminDTO;
 import com.gesti.bank.dto.ClientResponseForAdminDTO;
 import com.gesti.bank.dto.CreateAgentRequestDTO;
@@ -29,6 +30,7 @@ import com.gesti.bank.dto.UpdateAgentRequestDTO;
 import com.gesti.bank.dto.VerifiedClientRequestDTO;
 import com.gesti.bank.dto.VerifiedClientsRequestDTO;
 import com.gesti.bank.model.Address;
+import com.gesti.bank.model.BankAccount;
 import com.gesti.bank.model.Document;
 import com.gesti.bank.model.Request;
 import com.gesti.bank.model.Role;
@@ -514,6 +516,42 @@ public class UserAccountServiceImpl implements UserAccountService {
 		}
 		
 		return "Success";
+	}
+
+	@Override
+	public List<AgentResponseDTO> getAgentOfClient(int idClient) throws Exception {
+		Optional<UserAccount> clientOpt = userAccountRepository.findById(idClient);
+		if(!clientOpt.isPresent()) {
+			throw new Exception("User account does not exist!");
+		}
+		UserAccount client = clientOpt.get();
+		Role clientRole = roleRepository.findByName(ROLE_CLIENT);
+		if (clientRole == null) {
+			throw new Exception("Role not found");
+		}
+		if (!client.getRole().equals(clientRole)) {
+			throw new Exception("Provided ID is not related to a Client!");
+		}
+		
+		List<AgentResponseDTO> response = new ArrayList<AgentResponseDTO>();
+		
+		List<Request> requests = requestRepository.findAllByUserAccountFromAndRequestStatus(client, (byte) 1);
+		
+		for(Request r:requests) {
+
+			UserAccount agent = r.getUserAccountTo();
+			
+				if (agent.getEndDate() == null) {
+					AgentResponseDTO tempObj = new AgentResponseDTO(agent.getEmail(), agent.getFirstname(),
+							agent.getLastname(), agent.getPhone(), agent.getUsername(),
+							agent.getAddress().getAdditionalInfo(), agent.getAddress().getCity(),
+							agent.getAddress().getCountry(), agent.getAddress().getHomeNumber(),
+							agent.getAddress().getStreet(), agent.getAddress().getZip(), agent.getIdUserAccount());
+					response.add(tempObj);
+				}
+			}
+		return response;
+		
 	}
 
 }
