@@ -79,6 +79,9 @@ public class TransactionServiceImpl implements TransactionService {
 			throw new Exception("You provided invalid informations for receiver's bank account!");
 		}
 		BankAccount bankAccountTo = bankAccountToOpt.get();
+		if (bankAccountTo.getBankAccountStatus() == (byte) 0) {
+			throw new Exception("Bank account with provided ID is not active!");
+		}
 		Optional<TransactionType> transactionTypeOpt = transactionTypeRepository.findById(request.getTransactionTypeId());
 		if(!transactionTypeOpt.isPresent()) {
 			throw new Exception("You provided invalid transaction type!");
