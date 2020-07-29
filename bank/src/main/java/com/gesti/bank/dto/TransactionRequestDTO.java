@@ -8,7 +8,8 @@ public class TransactionRequestDTO {
 	private int transactionTypeId;
 	private String description;
 	private float amount;
-	
+	private String bankAccountNumberTo;	
+
 	public TransactionRequestDTO() {
 		super();
 	}
@@ -53,5 +54,11 @@ public class TransactionRequestDTO {
 		this.amount = amount;
 	}
 	
-	
+	public String getBankAccountNumberTo() {
+		return bankAccountNumberTo;
+	}
+
+	public void setBankAccountNumberTo(String bankAccountNumberTo) {
+		this.bankAccountNumberTo = bankAccountNumberTo;
+	}
 }
