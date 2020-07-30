@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.gesti.bank.dto.TransactionRequestDTO;
+import com.gesti.bank.dto.TransactionResponseDTO;
 import com.gesti.bank.dto.TransactionTypeResponseDTO;
 import com.gesti.bank.model.BankAccount;
 import com.gesti.bank.model.Transaction;
@@ -195,6 +196,15 @@ public class TransactionServiceImpl implements TransactionService {
 		creditTypeTransaction.setTransactionType(transactionType);
 		transactionRepository.save(creditTypeTransaction);
 		return "Success";
+	}
+
+
+	@Override
+	public List<TransactionResponseDTO> getTransactions(int idBankAccount) throws Exception {
+		//TO BE IMPLEMENTED!!!
+		List<Transaction> listTransactions = transactionRepository.findAll();
+		List<TransactionResponseDTO> response = new ArrayList<TransactionResponseDTO>();
+		return response;
 	}
 	
 	

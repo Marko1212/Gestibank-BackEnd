@@ -1,5 +1,6 @@
 package com.gesti.bank.controller;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,12 +8,15 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.gesti.bank.dto.BankAccountResponseDTO;
 import com.gesti.bank.dto.TransactionRequestDTO;
+import com.gesti.bank.dto.TransactionResponseDTO;
 import com.gesti.bank.dto.TransactionTypeResponseDTO;
 import com.gesti.bank.service.TransactionService;
 
@@ -42,6 +46,18 @@ public class TransactionController {
 		try {
 			response = transactionService.makeTransaction(request);
 			return new ResponseEntity<String>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@GetMapping("/getTransactions/{idBankAccount}")
+	public ResponseEntity<?> getTransactions(@PathVariable int idBankAccount) {
+		List<TransactionResponseDTO> response = null;
+		try {
+			response = transactionService.getTransactions(idBankAccount);
+			return new ResponseEntity<List<TransactionResponseDTO>>(response, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
