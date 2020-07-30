@@ -201,12 +201,23 @@ public class TransactionServiceImpl implements TransactionService {
 
 	@Override
 	public List<TransactionResponseDTO> getTransactions(int idBankAccount) throws Exception {
-		//TO BE IMPLEMENTED!!!
-		List<Transaction> listTransactions = transactionRepository.findAll();
+		Optional<BankAccount> bankAccountOpt = bankAccountRepository.findById(idBankAccount);
+		if(!bankAccountOpt.isPresent()) {
+			throw new Exception("You provided invalid informations for receiver's bank account!");
+		}
+		BankAccount bankAccount = bankAccountOpt.get();
+		if (bankAccount.getBankAccountStatus() == (byte) 0) {
+			throw new Exception("Bank account with provided ID is not active!");
+		}
+		List<Transaction> listTransactions = transactionRepository.findByBankAccountFromOrBankAccountTo(bankAccount, bankAccount);
 		List<TransactionResponseDTO> response = new ArrayList<TransactionResponseDTO>();
+		for (Transaction transaction:listTransactions) {
+			TransactionResponseDTO tempObj = new TransactionResponseDTO((transaction.getBankAccountFrom() == null)?0:transaction.getBankAccountFrom().getIdBankAccount(),(transaction.getBankAccountTo() == null)?0:transaction.getBankAccountTo().getIdBankAccount(),
+											transaction.getTransactionType().getName(), transaction.getDescription(), transaction.getAmount(), transaction.getTime(), transaction.getIdTransaction());
+			response.add(tempObj);
+		}
 		return response;
 	}
-	
 	
 
 }
