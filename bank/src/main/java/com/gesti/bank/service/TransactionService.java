@@ -14,4 +14,6 @@ public interface TransactionService {
 
 	List<TransactionResponseDTO> getTransactions(int idBankAccount) throws Exception;
 
+	String getBalanceForBankAccountId(int bankAccountId);
+
 }

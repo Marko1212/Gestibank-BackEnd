@@ -2,6 +2,8 @@ package com.gesti.bank.model;
 
 import java.io.Serializable;
 import javax.persistence.*;
+
+import java.util.Date;
 import java.util.List;
 
 
@@ -25,6 +27,10 @@ public class BankAccount implements Serializable {
 
 	@Column(name="bank_account_status")
 	private byte bankAccountStatus;
+	
+	@Column(name="creation_date")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date creationDate;
 
 	//bi-directional many-to-one association to BankAccountType
 	@ManyToOne
@@ -74,6 +80,18 @@ public class BankAccount implements Serializable {
 
 	public void setBankAccountStatus(byte bankAccountStatus) {
 		this.bankAccountStatus = bankAccountStatus;
+	}
+
+	public Date getCreationDate() {
+		return creationDate;
+	}
+
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
 	}
 
 	public BankAccountType getBankAccountType() {

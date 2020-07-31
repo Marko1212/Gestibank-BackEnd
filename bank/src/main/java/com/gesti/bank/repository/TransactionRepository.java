@@ -20,4 +20,14 @@ public interface TransactionRepository extends JpaRepository<Transaction, Intege
 	@Query("SELECT tr FROM Transaction AS tr WHERE tr.bankAccountFrom = :bankAccountFrom OR tr.bankAccountTo = :bankAccountTo")
 	List<Transaction> findByBankAccountFromOrBankAccountTo(@Param("bankAccountFrom") BankAccount bankAccountFrom, @Param("bankAccountTo") BankAccount bankAccountTo);
 
+	
+	@Query(value = "select\r\n" + 
+			"(select sum(t.amount) as prilivi from transaction as t where t.bank_account_id_bank_account_to = :bankAccount) -\r\n" + 
+			"(select sum(t.amount) as odlivi from transaction as t where t.bank_account_id_bank_account_from = :bankAccount) as stanje_na_racunu", nativeQuery = true)
+	Double getBalanceForBankAccountId(@Param("bankAccount") int bankAccount);
+	
+	@Query(value = "select\r\n" + 
+			"(select sum(t.amount) as prilivi from transaction as t where t.bank_account_id_bank_account_to = ?1) -\r\n" + 
+			"(select sum(t.amount) as odlivi from transaction as t where t.bank_account_id_bank_account_from = ?1) as stanje_na_racunu", nativeQuery = true)
+	Double getBalanceForBankAccountIdTwo(int bankAccount);
 }

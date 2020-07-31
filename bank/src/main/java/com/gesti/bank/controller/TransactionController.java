@@ -3,6 +3,7 @@ package com.gesti.bank.controller;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gesti.bank.dto.BankAccountResponseDTO;
@@ -24,10 +27,10 @@ import com.gesti.bank.service.TransactionService;
 @RestController
 @RequestMapping("/transaction")
 public class TransactionController {
-	
+
 	@Autowired
 	TransactionService transactionService;
-	
+
 	@GetMapping("/getTransactionTypes")
 	public ResponseEntity<?> getTransactionTypes() {
 		List<TransactionTypeResponseDTO> response = null;
@@ -39,7 +42,7 @@ public class TransactionController {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
-	
+
 	@PostMapping("/makeTransaction")
 	public ResponseEntity<String> makeTransaction(@RequestBody TransactionRequestDTO request) {
 		String response = null;
@@ -51,7 +54,7 @@ public class TransactionController {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
-	
+
 	@GetMapping("/getTransactions/{idBankAccount}")
 	public ResponseEntity<?> getTransactions(@PathVariable int idBankAccount) {
 		List<TransactionResponseDTO> response = null;
@@ -64,4 +67,17 @@ public class TransactionController {
 		}
 	}
 
+	@GetMapping("/getBalanceForBankAccountId")
+	public ResponseEntity<String> getBalanceForBankAccountId(@RequestParam int bankAccountId){
+		String response = "0.0";
+		try {
+			response = transactionService.getBalanceForBankAccountId(bankAccountId);
+			//JSONObject jsonObject = new JSONObject();
+			//onObject.put("balance", response);
+			return new ResponseEntity<String> (response, HttpStatus.OK);
+		} catch(Exception e) {
+			e.printStackTrace();
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+	}
 }
