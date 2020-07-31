@@ -28,7 +28,7 @@ import com.gesti.bank.service.BankAccountService;
 @Service
 public class BankAccountServiceImpl implements BankAccountService {
 
-	private final static int INITIAL_BANK_ACCOUNT_ID = 1;
+	private final static int INITIAL_BANK_ACCOUNT_TYPE_ID = 1;
 	private final static int INITIAL_RULE_ID = 1;
 
 	private final static String ROLE_ADMIN = "admin";
@@ -55,7 +55,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 		// TODO Auto-generated method stub
 		BankAccount bankAccount = new BankAccount();
 		bankAccount.setBankAccountNumber(generateBankAccountNumber());
-		Optional<BankAccountType> initialTypeOpt = bankAccountTypeRepository.findById(INITIAL_BANK_ACCOUNT_ID);
+		Optional<BankAccountType> initialTypeOpt = bankAccountTypeRepository.findById(INITIAL_BANK_ACCOUNT_TYPE_ID);
 		if (!initialTypeOpt.isPresent()) {
 			throw new Exception("Bank account type with provided id does not exist!");
 		}
@@ -130,7 +130,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 			throw new Exception("You don't have a permission for this action!");
 		}
 		if (response.isEmpty()) {
-			throw new Exception("There is no bank account");
+			throw new Exception("There is no bank account!");
 		}
 		return response;
 	}
@@ -213,7 +213,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 	public String modifyBankAccount(ModifyBankAccountRequestDTO request, int userID) throws Exception {
 		Optional<UserAccount> userAccountOpt = userAccountRepository.findById(userID);
 		if (!userAccountOpt.isPresent()) {
-			throw new Exception("User account with provided ID does not exist");
+			throw new Exception("User account with provided ID does not exist!");
 		}
 
 		UserAccount user = userAccountOpt.get();
@@ -244,7 +244,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 				throw new Exception("That is not your client!");
 			}
 		} else {
-			throw new Exception("You dont have a permission!");
+			throw new Exception("You do not have a permission!");
 		}
 
 		Optional<BankAccountType> bankAccountTypeOpt = bankAccountTypeRepository
@@ -301,7 +301,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 				throw new Exception("That is not your client!");
 			}
 		} else {
-			throw new Exception("You dont have a permission!");
+			throw new Exception("You do not have a permission!");
 		}
 		bankAcc.setBankAccountStatus((byte) 0);
 
