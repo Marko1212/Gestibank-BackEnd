@@ -232,6 +232,7 @@ public class TransactionServiceImpl implements TransactionService {
 			DecimalFormat df = new DecimalFormat("0.00");
 			return df.format(balance);
 		} catch (Exception e) {
+			e.printStackTrace();
 			return "0.00";
 		}
 	}
