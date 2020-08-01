@@ -28,7 +28,7 @@ public class BankAccount implements Serializable {
 	@Column(name="bank_account_status")
 	private byte bankAccountStatus;
 	
-	@Column(name="creation_date")
+	@Column(name="creation_date", columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable=false, updatable=false)
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date creationDate;
 
