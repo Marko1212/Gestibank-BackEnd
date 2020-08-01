@@ -1,5 +1,7 @@
 package com.gesti.bank.dto;
 
+import java.util.Date;
+
 import com.gesti.bank.model.BankAccountType;
 import com.gesti.bank.model.BankRule;
 import com.gesti.bank.model.UserAccount;
@@ -14,12 +16,12 @@ public class BankAccountResponseDTO {
 	private int bankRuleId;
 	private float bankRulePercent;
 	private String bankRuleName;
-	
+	private Date creationDate;
 	
 	
 	public BankAccountResponseDTO(int idBankAccount, String bankAccountNumber, int bankAccountTypeId,
 			String bankAccountTypeName, int userAccountId, String userAccountFullName, int bankRuleId,
-			float bankRulePercent, String bankRuleName) {
+			float bankRulePercent, String bankRuleName, Date creationDate) {
 		super();
 		this.idBankAccount = idBankAccount;
 		this.bankAccountNumber = bankAccountNumber;
@@ -30,6 +32,7 @@ public class BankAccountResponseDTO {
 		this.bankRuleId = bankRuleId;
 		this.bankRulePercent = bankRulePercent;
 		this.bankRuleName = bankRuleName;
+		this.creationDate = creationDate;
 	}
 	public int getIdBankAccount() {
 		return idBankAccount;
@@ -85,6 +88,11 @@ public class BankAccountResponseDTO {
 	public void setBankRuleName(String bankRuleName) {
 		this.bankRuleName = bankRuleName;
 	}
-	
+	public Date getCreationDate() {
+		return creationDate;
+	}
+	public void setCreationDate(Date creationDate) {
+		this.creationDate = creationDate;
+	}
 	
 }

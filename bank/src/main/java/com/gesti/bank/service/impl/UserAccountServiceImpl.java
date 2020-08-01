@@ -478,7 +478,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 			UserAccount client = clientOpt.get();
 			Role clientRole = roleRepository.findByName(ROLE_CLIENT);
 			if (clientRole == null) {
-				throw new Exception("Role not found");
+				throw new Exception("Role not found!");
 			}
 			if (!client.getRole().equals(clientRole)) {
 				throw new Exception("Provided ID is not related to a Client!");

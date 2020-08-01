@@ -109,7 +109,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 								bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
 								bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
 								bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
-								bankAcc.getBankRule().getRuleName());
+								bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate());
 						response.add(tmpObj);
 					}
 				}
@@ -122,7 +122,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 							bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
 							bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
 							bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
-							bankAcc.getBankRule().getRuleName());
+							bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate());
 					response.add(tmpObj);
 				}
 			}
@@ -178,7 +178,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 				bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
 				bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
 				bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
-				bankAcc.getBankRule().getRuleName());
+				bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate());
 		return response;
 	}
 
