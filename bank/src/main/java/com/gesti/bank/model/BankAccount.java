@@ -6,54 +6,53 @@ import javax.persistence.*;
 import java.util.Date;
 import java.util.List;
 
-
 /**
  * The persistent class for the bank_account database table.
  * 
  */
 @Entity
-@Table(name="bank_account")
-@NamedQuery(name="BankAccount.findAll", query="SELECT b FROM BankAccount b")
+@Table(name = "bank_account")
+@NamedQuery(name = "BankAccount.findAll", query = "SELECT b FROM BankAccount b")
 public class BankAccount implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	@Id
-	@GeneratedValue(strategy=GenerationType.IDENTITY)
-	@Column(name="id_bank_account")
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id_bank_account")
 	private int idBankAccount;
 
-	@Column(name="bank_account_number")
+	@Column(name = "bank_account_number")
 	private String bankAccountNumber;
 
-	@Column(name="bank_account_status")
+	@Column(name = "bank_account_status")
 	private byte bankAccountStatus;
-	
+
 //	@Column(name="creation_date", columnDefinition="TIMESTAMP DEFAULT CURRENT_TIMESTAMP", insertable=false, updatable=false)
-	@Column(name="creation_date")
+	@Column(name = "creation_date")
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date creationDate;
 
-	//bi-directional many-to-one association to BankAccountType
+	// bi-directional many-to-one association to BankAccountType
 	@ManyToOne
-	@JoinColumn(name="bank_account_type_id_bank_account_type")
+	@JoinColumn(name = "bank_account_type_id_bank_account_type")
 	private BankAccountType bankAccountType;
 
-	//bi-directional many-to-one association to UserAccount
+	// bi-directional many-to-one association to UserAccount
 	@ManyToOne
-	@JoinColumn(name="user_account_id_user_account")
+	@JoinColumn(name = "user_account_id_user_account")
 	private UserAccount userAccount;
 
-	//bi-directional many-to-one association to BankRule
+	// bi-directional many-to-one association to BankRule
 	@ManyToOne
-	@JoinColumn(name="bank_rules_id_bank_rules")
+	@JoinColumn(name = "bank_rules_id_bank_rules")
 	private BankRule bankRule;
 
-	//bi-directional many-to-one association to Transaction
-	@OneToMany(mappedBy="bankAccountFrom")
+	// bi-directional many-to-one association to Transaction
+	@OneToMany(mappedBy = "bankAccountFrom")
 	private List<Transaction> transactionsFrom;
 
-	//bi-directional many-to-one association to Transaction
-	@OneToMany(mappedBy="bankAccountTo")
+	// bi-directional many-to-one association to Transaction
+	@OneToMany(mappedBy = "bankAccountTo")
 	private List<Transaction> transactionsTo;
 
 	public BankAccount() {
