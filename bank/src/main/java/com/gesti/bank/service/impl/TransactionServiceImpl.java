@@ -274,11 +274,10 @@ public class TransactionServiceImpl implements TransactionService {
 		try {
 			double balance = transactionRepository.getBalanceForBankAccountId(bankAccountId);
 			DecimalFormat df = new DecimalFormat("0.00");
-			String response = df.format(balance) +"€";
-			return response;
+			return df.format(balance);
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "0.00€";
+			return "0.00";
 		}
 	}
 
