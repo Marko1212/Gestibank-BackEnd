@@ -1,6 +1,8 @@
 package com.gesti.bank.model;
 
 import java.io.Serializable;
+import java.util.Date;
+
 import javax.persistence.*;
 
 
@@ -19,11 +21,27 @@ public class Notification implements Serializable {
 	private int idNotification;
 
 	private String message;
+	
+	@Column(name="notification_date")
+	@Temporal(TemporalType.TIMESTAMP)
+	private Date notificationDate;
 
 	//bi-directional many-to-one association to UserAccount
 	@ManyToOne
 	@JoinColumn(name="user_account_id_user_account")
 	private UserAccount userAccount;
+
+	public Date getNotificationDate() {
+		return notificationDate;
+	}
+
+	public void setNotificationDate(Date notificationDate) {
+		this.notificationDate = notificationDate;
+	}
+
+	public static long getSerialversionuid() {
+		return serialVersionUID;
+	}
 
 	public Notification() {
 	}

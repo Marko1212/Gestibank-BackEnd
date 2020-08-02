@@ -33,7 +33,7 @@ public class NotificationServiceImpl implements NotificationService{
 		List<Notification> fetchAllNotificationsForUser = notificationRepository.findAllByUserAccount(userAccount);
 		List<NotificationResponseDTO> response = new ArrayList<NotificationResponseDTO>();
 		for(Notification not:fetchAllNotificationsForUser) {
-			NotificationResponseDTO tmpNot = new NotificationResponseDTO(not.getIdNotification(), not.getMessage());
+			NotificationResponseDTO tmpNot = new NotificationResponseDTO(not.getIdNotification(), not.getMessage(), not.getNotificationDate());
 			response.add(tmpNot);
 		}
 		return response;

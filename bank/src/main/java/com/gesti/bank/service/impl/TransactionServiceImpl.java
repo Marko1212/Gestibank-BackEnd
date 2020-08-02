@@ -184,7 +184,7 @@ public class TransactionServiceImpl implements TransactionService {
 			Integer limitForBankAccountType = (-1) * BankAccountTypesUtil
 					.getMinimumAmountForBankAccountType(bankAccountFrom.getBankAccountType().getName());
 			if (newBalance < limitForBankAccountType && bankAccountTo.getIdBankAccount() != bankAccountFrom.getIdBankAccount()) {
-				throw new Exception("You don't have enough money");
+				throw new Exception("You do not have enough money!");
 			}
 		}
 		// handling amount limits end
@@ -207,6 +207,7 @@ public class TransactionServiceImpl implements TransactionService {
 			String optionalText = request.getDescription().isBlank() ? ""
 					: String.format(" Description : %s.", request.getDescription());
 			notifyReceiver.setMessage(mainText + optionalText);
+			notifyReceiver.setNotificationDate(transferTransaction.getTime());
 			notificationRepository.save(notifyReceiver);
 		}
 		// handling notifications end
