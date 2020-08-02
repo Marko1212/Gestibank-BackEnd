@@ -1,6 +1,7 @@
 package com.gesti.bank.service.impl;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Optional;
 import java.util.Random;
@@ -69,6 +70,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 		}
 		BankRule initialBankRule = initialBankRuleOpt.get();
 		bankAccount.setBankRule(initialBankRule);
+		bankAccount.setCreationDate(new Date());
 		bankAccountRepository.save(bankAccount);
 	}
 

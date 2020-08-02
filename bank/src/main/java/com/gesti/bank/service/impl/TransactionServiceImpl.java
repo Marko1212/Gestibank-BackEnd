@@ -15,14 +15,17 @@ import com.gesti.bank.dto.TransactionRequestDTO;
 import com.gesti.bank.dto.TransactionResponseDTO;
 import com.gesti.bank.dto.TransactionTypeResponseDTO;
 import com.gesti.bank.model.BankAccount;
+import com.gesti.bank.model.Notification;
 import com.gesti.bank.model.Transaction;
 import com.gesti.bank.model.TransactionType;
 import com.gesti.bank.model.UserAccount;
 import com.gesti.bank.repository.BankAccountRepository;
+import com.gesti.bank.repository.NotificationRepository;
 import com.gesti.bank.repository.TransactionRepository;
 import com.gesti.bank.repository.TransactionTypeRepository;
 import com.gesti.bank.repository.UserAccountRepository;
 import com.gesti.bank.service.TransactionService;
+import com.gesti.bank.util.BankAccountTypesUtil;
 
 @Service
 public class TransactionServiceImpl implements TransactionService {
@@ -38,6 +41,9 @@ public class TransactionServiceImpl implements TransactionService {
 
 	@Autowired
 	UserAccountRepository userAccountRepository;
+
+	@Autowired
+	NotificationRepository notificationRepository;
 
 	private static final int TRANSACTION_TYPE_CREDIT_ID = 1;
 	private static final int TRANSACTION_TYPE_BANKOMAT_ID = 2;
@@ -103,8 +109,20 @@ public class TransactionServiceImpl implements TransactionService {
 			throw new Exception("You provided invalid transaction type!");
 		}
 		TransactionType transactionType = transactionTypeOpt.get();
+		// handling amount limits start
+		Double balanceForAccount = Double.parseDouble(getBalanceForBankAccountId(bankAccountFrom.getIdBankAccount()));
+		float amount = request.getAmount();
+		float newBalance = balanceForAccount.floatValue() - amount;
+		if (newBalance < 0) {
+			Integer limitForBankAccountType = (-1) * BankAccountTypesUtil
+					.getMinimumAmountForBankAccountType(bankAccountFrom.getBankAccountType().getName());
+			if (newBalance < limitForBankAccountType) {
+				throw new Exception("You don't have enough money");
+			}
+		}
+		// handling amount limits end
 		Transaction bankomatTransaction = new Transaction();
-		bankomatTransaction.setAmount(request.getAmount());
+		bankomatTransaction.setAmount(amount);
 		bankomatTransaction.setBankAccountFrom(bankAccountFrom);
 		bankomatTransaction.setDescription(request.getDescription());
 		bankomatTransaction.setTime(new Date());
@@ -158,14 +176,40 @@ public class TransactionServiceImpl implements TransactionService {
 			throw new Exception("You provided invalid transaction type!");
 		}
 		TransactionType transactionType = transactionTypeOpt.get();
+		// handling amount limits start
+		Double balanceForAccount = Double.parseDouble(getBalanceForBankAccountId(bankAccountFrom.getIdBankAccount()));
+		float amount = request.getAmount();
+		float newBalance = balanceForAccount.floatValue() - amount;
+		if (newBalance < 0) {
+			Integer limitForBankAccountType = (-1) * BankAccountTypesUtil
+					.getMinimumAmountForBankAccountType(bankAccountFrom.getBankAccountType().getName());
+			if (newBalance < limitForBankAccountType && bankAccountTo.getIdBankAccount() != bankAccountFrom.getIdBankAccount()) {
+				throw new Exception("You don't have enough money");
+			}
+		}
+		// handling amount limits end
 		Transaction transferTransaction = new Transaction();
-		transferTransaction.setAmount(request.getAmount());
+		transferTransaction.setAmount(amount);
 		transferTransaction.setBankAccountFrom(bankAccountFrom);
 		transferTransaction.setBankAccountTo(bankAccountTo);
 		transferTransaction.setDescription(request.getDescription());
 		transferTransaction.setTime(new Date());
 		transferTransaction.setTransactionType(transactionType);
 		transactionRepository.save(transferTransaction);
+		// handling notifications start
+		if (!bankAccountFrom.equals(bankAccountTo)) {
+			DecimalFormat df = new DecimalFormat("0.00");
+			Notification notifyReceiver = new Notification();
+			notifyReceiver.setUserAccount(bankAccountTo.getUserAccount());
+			String mainText = String.format("Hi there, you have received transfer of %s€ from %s.", df.format(amount),
+					bankAccountFrom.getUserAccount().getFirstname() + " "
+							+ bankAccountFrom.getUserAccount().getLastname());
+			String optionalText = request.getDescription().isBlank() ? ""
+					: String.format(" Description : %s.", request.getDescription());
+			notifyReceiver.setMessage(mainText + optionalText);
+			notificationRepository.save(notifyReceiver);
+		}
+		// handling notifications end
 		return "Success";
 	}
 
@@ -230,10 +274,11 @@ public class TransactionServiceImpl implements TransactionService {
 		try {
 			double balance = transactionRepository.getBalanceForBankAccountId(bankAccountId);
 			DecimalFormat df = new DecimalFormat("0.00");
-			return df.format(balance);
+			String response = df.format(balance) +"€";
+			return response;
 		} catch (Exception e) {
 			e.printStackTrace();
-			return "0.00";
+			return "0.00€";
 		}
 	}
 

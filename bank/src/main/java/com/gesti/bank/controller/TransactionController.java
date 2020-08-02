@@ -69,7 +69,7 @@ public class TransactionController {
 
 	@GetMapping("/getBalanceForBankAccountId")
 	public ResponseEntity<String> getBalanceForBankAccountId(@RequestParam int bankAccountId){
-		String response = "0.0";
+		String response = "0.00";
 		try {
 			response = transactionService.getBalanceForBankAccountId(bankAccountId);
 			//JSONObject jsonObject = new JSONObject();
