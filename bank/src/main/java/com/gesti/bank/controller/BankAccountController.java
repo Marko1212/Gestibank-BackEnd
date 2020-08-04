@@ -1,7 +1,9 @@
 package com.gesti.bank.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gesti.bank.dto.BankAccountResponseDTO;
@@ -21,6 +24,7 @@ import com.gesti.bank.dto.BankRuleResponseDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.dto.ModifyBankAccountRequestDTO;
 import com.gesti.bank.service.BankAccountService;
+import com.gesti.bank.util.RequestTitlesUtil;
 
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 @RestController
@@ -67,10 +71,10 @@ public class BankAccountController {
 	}
 	
 	@GetMapping("/getBankAccountTypes")
-	public ResponseEntity<?> getBankAccountTypes() {
+	public ResponseEntity<?> getBankAccountTypes(@RequestParam(value="isSavingFlag", defaultValue = "0") String isSavingFlag) {
 		List<BankAccountTypeResponseDTO> response = new ArrayList<BankAccountTypeResponseDTO>();
 		try {
-			response = bankAccountService.getBankAccountTypes();
+			response = bankAccountService.getBankAccountTypes(Integer.parseInt(isSavingFlag));
 			return new ResponseEntity<List<BankAccountTypeResponseDTO>>(response, HttpStatus.OK);
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -79,10 +83,10 @@ public class BankAccountController {
 	}
 	
 	@GetMapping("/getBankRules")
-	public ResponseEntity<?> getBankRules() {
+	public ResponseEntity<?> getBankRules(@RequestParam(value="isSavingFlag", defaultValue = "0") String isSavingFlag) {
 		List<BankRuleResponseDTO> response = new ArrayList<BankRuleResponseDTO>();
 		try {
-			response = bankAccountService.getBankRules();
+			response = bankAccountService.getBankRules(Integer.parseInt(isSavingFlag));
 			return new ResponseEntity<List<BankRuleResponseDTO>>(response, HttpStatus.OK);
 		}catch (Exception e) {
 			e.printStackTrace();
@@ -99,6 +103,13 @@ public class BankAccountController {
 		} catch (Exception e) {
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
+	}
+	
+	
+	
+	@GetMapping("/requestTitlesForClients")
+	public ResponseEntity<List<String>> requestTitlesForClients(){
+		return new ResponseEntity<List<String>>(RequestTitlesUtil.requestTitlesForClients, HttpStatus.OK);
 	}
 		
 }

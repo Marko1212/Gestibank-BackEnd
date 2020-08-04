@@ -17,9 +17,9 @@ public interface BankAccountService {
 
 	BankAccountResponseDTO getBankAccount(int id, int userID) throws Exception;
 
-	List<BankAccountTypeResponseDTO> getBankAccountTypes() throws Exception;
+	List<BankAccountTypeResponseDTO> getBankAccountTypes(int isSavingFlag) throws Exception;
 
-	List<BankRuleResponseDTO> getBankRules() throws Exception;
+	List<BankRuleResponseDTO> getBankRules(int isSavingFlag) throws Exception;
 
 	String modifyBankAccount(ModifyBankAccountRequestDTO request, int userID) throws Exception;
 

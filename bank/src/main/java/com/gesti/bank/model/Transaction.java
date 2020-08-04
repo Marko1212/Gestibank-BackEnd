@@ -40,6 +40,9 @@ public class Transaction implements Serializable {
 	@ManyToOne
 	@JoinColumn(name="transaction_type_id_transaction_type")
 	private TransactionType transactionType;
+	
+	@OneToOne(mappedBy = "transaction")
+    private Notification notification;
 
 	public Transaction() {
 	}
@@ -101,5 +104,15 @@ public class Transaction implements Serializable {
 	public void setTransactionType(TransactionType transactionType) {
 		this.transactionType = transactionType;
 	}
+
+	public Notification getNotification() {
+		return notification;
+	}
+
+	public void setNotification(Notification notification) {
+		this.notification = notification;
+	}
+	
+	
 
 }

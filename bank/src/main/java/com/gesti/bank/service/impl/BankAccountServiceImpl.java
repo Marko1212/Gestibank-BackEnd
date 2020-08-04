@@ -35,6 +35,9 @@ public class BankAccountServiceImpl implements BankAccountService {
 	private final static String ROLE_ADMIN = "admin";
 	private final static String ROLE_CLIENT = "client";
 	private final static String ROLE_AGENT = "agent";
+	
+	private final static String RULE_TYPE_CONTAINING_CURRENT_TEXT = "Current";
+	private final static String RULE_TYPE_CONTAINING_SAVING_TEXT = "Saving";
 
 	@Autowired
 	BankAccountRepository bankAccountRepository;
@@ -185,9 +188,14 @@ public class BankAccountServiceImpl implements BankAccountService {
 	}
 
 	@Override
-	public List<BankAccountTypeResponseDTO> getBankAccountTypes() throws Exception {
+	public List<BankAccountTypeResponseDTO> getBankAccountTypes(int isSavingFlag) throws Exception {
 		List<BankAccountTypeResponseDTO> response = new ArrayList<BankAccountTypeResponseDTO>();
-		List<BankAccountType> catchTypes = bankAccountTypeRepository.findAll();
+		List<BankAccountType> catchTypes = new ArrayList<BankAccountType>();
+		if(isSavingFlag == 0) {
+			catchTypes = bankAccountTypeRepository.findAllByNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CURRENT_TEXT);
+		}else {
+			catchTypes = bankAccountTypeRepository.findAllByNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_SAVING_TEXT);
+		}
 		for (BankAccountType bat : catchTypes) {
 			BankAccountTypeResponseDTO tmpResObj = new BankAccountTypeResponseDTO();
 			tmpResObj.setIdBankAccountType(bat.getIdBankAccountType());
@@ -198,9 +206,15 @@ public class BankAccountServiceImpl implements BankAccountService {
 	}
 
 	@Override
-	public List<BankRuleResponseDTO> getBankRules() throws Exception {
+	public List<BankRuleResponseDTO> getBankRules(int isSavingFlag) throws Exception {
 		List<BankRuleResponseDTO> response = new ArrayList<BankRuleResponseDTO>();
-		List<BankRule> catchRules = bankRuleRepository.findAll();
+		List<BankRule> catchRules = new ArrayList<BankRule>();
+		if(isSavingFlag==0) {
+			catchRules = bankRuleRepository.findAllByRuleNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CURRENT_TEXT);
+		}else {
+			catchRules = bankRuleRepository.findAllByRuleNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_SAVING_TEXT);
+		}
+		
 		for (BankRule br : catchRules) {
 			BankRuleResponseDTO tmpResObj = new BankRuleResponseDTO();
 			tmpResObj.setIdBankRules(br.getIdBankRules());

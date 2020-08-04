@@ -22,22 +22,14 @@ public class Notification implements Serializable {
 
 	private String message;
 	
-	@Column(name="notification_date")
-	@Temporal(TemporalType.TIMESTAMP)
-	private Date notificationDate;
-
 	//bi-directional many-to-one association to UserAccount
 	@ManyToOne
 	@JoinColumn(name="user_account_id_user_account")
 	private UserAccount userAccount;
-
-	public Date getNotificationDate() {
-		return notificationDate;
-	}
-
-	public void setNotificationDate(Date notificationDate) {
-		this.notificationDate = notificationDate;
-	}
+	
+	@OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "transaction_id_transaction", referencedColumnName = "id_transaction")
+    private Transaction transaction;
 
 	public static long getSerialversionuid() {
 		return serialVersionUID;
@@ -68,6 +60,14 @@ public class Notification implements Serializable {
 
 	public void setUserAccount(UserAccount userAccount) {
 		this.userAccount = userAccount;
+	}
+
+	public Transaction getTransaction() {
+		return transaction;
+	}
+
+	public void setTransaction(Transaction transaction) {
+		this.transaction = transaction;
 	}
 
 }

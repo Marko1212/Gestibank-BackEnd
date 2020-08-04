@@ -195,7 +195,7 @@ public class TransactionServiceImpl implements TransactionService {
 		transferTransaction.setDescription(request.getDescription());
 		transferTransaction.setTime(new Date());
 		transferTransaction.setTransactionType(transactionType);
-		transactionRepository.save(transferTransaction);
+		transactionRepository.saveAndFlush(transferTransaction);
 		// handling notifications start
 		if (!bankAccountFrom.equals(bankAccountTo)) {
 			DecimalFormat df = new DecimalFormat("0.00");
@@ -207,7 +207,7 @@ public class TransactionServiceImpl implements TransactionService {
 			String optionalText = request.getDescription().isBlank() ? ""
 					: String.format(" Description : %s.", request.getDescription());
 			notifyReceiver.setMessage(mainText + optionalText);
-			notifyReceiver.setNotificationDate(transferTransaction.getTime());
+			notifyReceiver.setTransaction(transferTransaction);
 			notificationRepository.save(notifyReceiver);
 		}
 		// handling notifications end
