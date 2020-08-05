@@ -341,17 +341,17 @@ public class BankAccountServiceImpl implements BankAccountService {
 		}
 		UserAccount client = clientAccountOpt.get();
 		if(client.getValid()!=1) {
-			throw new Exception("User is not valid");
+			throw new Exception("User is not valid!");
 		}
 		Optional<Request> lastValidatedRequestOpt = requestRepository.findFirstByUserAccountFromAndRequestStatusOrderByIdRequestDesc(client, (byte) 1);
 		if(!lastValidatedRequestOpt.isPresent()) {
-			throw new Exception("We cannot find your agent at the moment, please try again later...");
+			throw new Exception("We can not find your agent at the moment, please try again later!");
 		}
 		Request lastValidatedRequest = lastValidatedRequestOpt.get();
 		
 		String requestTitle = request.getTitle();
 		if(!RequestTitlesUtil.requestTitlesForClients.contains(requestTitle)) {
-			throw new Exception("Request title is not valid");
+			throw new Exception("Request title is not valid!");
 		}
 		
 		UserAccount agent = lastValidatedRequest.getUserAccountTo();
@@ -365,7 +365,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 		newRequest.setUserAccountTo(agent);
 		requestRepository.save(newRequest);
 		
-		return String.format("Agent %s will check your request soon.", agent.getFirstname() + " " + agent.getLastname());
+		return String.format("Agent %s will check your request soon!", agent.getFirstname() + " " + agent.getLastname());
 	}
 
 }
