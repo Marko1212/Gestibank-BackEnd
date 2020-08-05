@@ -15,7 +15,14 @@ import com.gesti.bank.model.UserAccount;
 @Repository
 public interface RequestRepository extends JpaRepository<Request, Integer>{
 	List<Request> findAllByUserAccountToAndRequestStatus(UserAccount agent, byte requestStatus);
+	
+	List<Request> findAllByUserAccountToAndRequestStatusAndTitle(UserAccount agent, byte requestStatus, String title);
+	
+	List<Request> findAllByUserAccountToAndRequestStatusAndTitleNot(UserAccount agent, byte requestStatus, String title);
+	
 	List<Request> findAllByUserAccountFromAndRequestStatus(UserAccount client, byte requestStatus);
+	
+	Optional<Request> findFirstByUserAccountFromAndRequestStatusOrderByIdRequestDesc(UserAccount client, byte requestStatus);
 	
 	@Query("SELECT userAccountTo FROM Request as r where r.userAccountTo.endDate is null and r.userAccountFrom = :userAccountFrom and r.requestStatus = :requestStatus")
 	List<UserAccount> fetchAgentForClient(Pageable pageable, @Param("userAccountFrom") UserAccount client, @Param("requestStatus") byte requestStatus);

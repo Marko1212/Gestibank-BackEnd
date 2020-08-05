@@ -44,6 +44,7 @@ import com.gesti.bank.repository.UserAccountRepository;
 import com.gesti.bank.service.BankAccountService;
 import com.gesti.bank.service.EmailService;
 import com.gesti.bank.service.UserAccountService;
+import com.gesti.bank.util.RequestTitlesUtil;
 
 @Service
 public class UserAccountServiceImpl implements UserAccountService {
@@ -55,9 +56,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 	private final static String IDENTIFICATION_DOCUMENT = "Identification document";
 	private final static String PROOF_HOME = "Home proof document";
 	private final static String PROOF_SALARY = "Salary proof document";
-	
+
 	private final static String CREATE_ACCOUNT_TITLE = "CREATE_ACCOUNT";
-	
+
 	private final static String GET_FILES_METHOD_PATH = "/files/getFiles/";
 
 	@Autowired
@@ -65,10 +66,10 @@ public class UserAccountServiceImpl implements UserAccountService {
 
 	@Autowired
 	AddressRepository addressRepository;
-	
+
 	@Autowired
 	EmailService emailService;
-	
+
 	@Autowired
 	BankAccountService bankAccountService;
 
@@ -77,10 +78,10 @@ public class UserAccountServiceImpl implements UserAccountService {
 
 	@Autowired
 	UserAccountRepository userAccountRepository;
-	
+
 	@Autowired
 	RequestRepository requestRepository;
-	
+
 	@Value("${environment}")
 	String environment;
 
@@ -127,10 +128,10 @@ public class UserAccountServiceImpl implements UserAccountService {
 
 		Document idDocumentDoc = new Document(IDENTIFICATION_DOCUMENT,
 				rootForUser.toString() + "\\" + idDocument.getOriginalFilename(), userAccount);
-		Document proofHomeDoc = new Document(PROOF_HOME, rootForUser.toString() + "\\" + proofHome.getOriginalFilename(),
-				userAccount);
-		Document proofSalaryDoc = new Document(PROOF_SALARY, rootForUser.toString() + "\\" + proofSalary.getOriginalFilename(),
-				userAccount);
+		Document proofHomeDoc = new Document(PROOF_HOME,
+				rootForUser.toString() + "\\" + proofHome.getOriginalFilename(), userAccount);
+		Document proofSalaryDoc = new Document(PROOF_SALARY,
+				rootForUser.toString() + "\\" + proofSalary.getOriginalFilename(), userAccount);
 		documentRepository.save(idDocumentDoc);
 		documentRepository.save(proofHomeDoc);
 		documentRepository.save(proofSalaryDoc);
@@ -291,23 +292,23 @@ public class UserAccountServiceImpl implements UserAccountService {
 		}
 		boolean canDelete = true;
 		if (agent.getRequestsFrom().size() > 0) {
-			
+
 			canDelete = false;
 		}
 		if (agent.getRequestsTo().size() > 0) {
-			
+
 			canDelete = false;
 		}
 		if (agent.getBankAccounts().size() > 0) {
-			
+
 			canDelete = false;
 		}
 		if (agent.getNotifications().size() > 0) {
-			
+
 			canDelete = false;
 		}
 		if (agent.getDocuments().size() > 0) {
-			
+
 			canDelete = false;
 		}
 		if (canDelete) {
@@ -359,8 +360,8 @@ public class UserAccountServiceImpl implements UserAccountService {
 		List<ClientResponseForAdminDTO> response = new ArrayList<ClientResponseForAdminDTO>();
 		for (UserAccount client : clients) {
 			String agent = "";
-			for(Request request : client.getRequestsFrom()) {
-				if(request.getTitle().equals(CREATE_ACCOUNT_TITLE)) {
+			for (Request request : client.getRequestsFrom()) {
+				if (request.getTitle().equals(CREATE_ACCOUNT_TITLE)) {
 					agent = request.getUserAccountTo().getFirstname() + " " + request.getUserAccountTo().getLastname();
 				}
 			}
@@ -375,7 +376,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 	@Override
 	@Transactional
 	public String assignClient(int agentId, AssignClientRequestDTO request) throws Exception {
-		Optional <UserAccount> agentOpt = userAccountRepository.findById(agentId);
+		Optional<UserAccount> agentOpt = userAccountRepository.findById(agentId);
 		if (!agentOpt.isPresent()) {
 			throw new Exception("Agent not found!");
 		}
@@ -387,13 +388,13 @@ public class UserAccountServiceImpl implements UserAccountService {
 		if (!agent.getRole().equals(agentRole)) {
 			throw new Exception("Provided ID is not related to an Agent!");
 		}
-		
+
 		Role clientRole = roleRepository.findByName(ROLE_CLIENT);
 		if (clientRole == null) {
 			throw new Exception("Role not found");
 		}
-		for (ClientRequestForAdminDTO clientReq:request.getClients()) {
-			Optional <UserAccount> clientOpt = userAccountRepository.findById(clientReq.getIdUserAccount());
+		for (ClientRequestForAdminDTO clientReq : request.getClients()) {
+			Optional<UserAccount> clientOpt = userAccountRepository.findById(clientReq.getIdUserAccount());
 			if (!clientOpt.isPresent()) {
 				throw new Exception("Client not found!");
 			}
@@ -402,8 +403,8 @@ public class UserAccountServiceImpl implements UserAccountService {
 				throw new Exception("Provided ID is not related to a Client!");
 			}
 			Request assignRequest = new Request();
-			for(Request r : client.getRequestsFrom()) {
-				if(r.getTitle().equals(CREATE_ACCOUNT_TITLE)) {
+			for (Request r : client.getRequestsFrom()) {
+				if (r.getTitle().equals(CREATE_ACCOUNT_TITLE)) {
 					assignRequest = r;
 				}
 			}
@@ -415,14 +416,15 @@ public class UserAccountServiceImpl implements UserAccountService {
 			assignRequest.setUserAccountTo(agent);
 			requestRepository.save(assignRequest);
 		}
-		
+
 		return "Success";
 	}
 
 	@Override
-	public List<GetUnresolvedRequestsForAgentResponseDTO> getUnresolvedRequests(int agentId) throws Exception {
+	public List<GetUnresolvedRequestsForAgentResponseDTO> getUnresolvedRequests(int agentId, int requestTypeFlag)
+			throws Exception {
 		Optional<UserAccount> agentOpt = userAccountRepository.findById(agentId);
-		if(!agentOpt.isPresent()) {
+		if (!agentOpt.isPresent()) {
 			throw new Exception("User account does not exist!");
 		}
 		UserAccount agent = agentOpt.get();
@@ -433,33 +435,52 @@ public class UserAccountServiceImpl implements UserAccountService {
 		if (!agent.getRole().equals(agentRole)) {
 			throw new Exception("Provided ID is not related to an Agent!");
 		}
-		List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatus(agent, (byte) 0);
+		List<Request> requests = new ArrayList<Request>();
+		if (requestTypeFlag == 0) {
+			requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitle(agent, (byte) 0,
+					RequestTitlesUtil.CREATE_ACCOUNT);
+		} else {
+			requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitleNot(agent, (byte) 0,
+					RequestTitlesUtil.CREATE_ACCOUNT);
+		}
 		List<GetUnresolvedRequestsForAgentResponseDTO> response = new ArrayList<GetUnresolvedRequestsForAgentResponseDTO>();
-		
-		for(Request r:requests) {
+
+		for (Request r : requests) {
 			List<Document> documents = documentRepository.findAllByUserAccount(r.getUserAccountFrom());
 			List<FileInfoResponseDTO> files = new ArrayList<FileInfoResponseDTO>();
-			for(Document d:documents) {
-				String path = d.getPath();
-				String url = environment + GET_FILES_METHOD_PATH + path.replace("\\", "/");
-				String name = path.substring(path.lastIndexOf("\\") +1);
-				FileInfoResponseDTO tmpFile = new FileInfoResponseDTO(name, url);
-				files.add(tmpFile);
+			if (requestTypeFlag == 0) {
+				for (Document d : documents) {
+					String path = d.getPath();
+					String url = environment + GET_FILES_METHOD_PATH + path.replace("\\", "/");
+					String name = path.substring(path.lastIndexOf("\\") + 1);
+					FileInfoResponseDTO tmpFile = new FileInfoResponseDTO(name, url);
+					files.add(tmpFile);
+				}
 			}
-			GetUnresolvedRequestsForAgentResponseDTO tmpObj = new GetUnresolvedRequestsForAgentResponseDTO(r.getIdRequest(), r.getTitle(), r.getDescription(), r.getTime(), r.getUserAccountFrom().getIdUserAccount(), r.getUserAccountFrom().getEmail(), r.getUserAccountFrom().getFirstname(), r.getUserAccountFrom().getLastname(), r.getUserAccountFrom().getMarriageStatus(), r.getUserAccountFrom().getNumberOfChildren(), r.getUserAccountFrom().getPass(), r.getUserAccountFrom().getPhone(), r.getUserAccountFrom().getUsername(), r.getUserAccountFrom().getAddress().getAdditionalInfo(), r.getUserAccountFrom().getAddress().getCity(), r.getUserAccountFrom().getAddress().getCountry(), r.getUserAccountFrom().getAddress().getHomeNumber(), r.getUserAccountFrom().getAddress().getStreet(), r.getUserAccountFrom().getAddress().getZip(), r.getUserAccountFrom().getValid() == 0 ? false : true,files);
+			GetUnresolvedRequestsForAgentResponseDTO tmpObj = new GetUnresolvedRequestsForAgentResponseDTO(
+					r.getIdRequest(), r.getTitle(), r.getDescription(), r.getTime(),
+					r.getUserAccountFrom().getIdUserAccount(), r.getUserAccountFrom().getEmail(),
+					r.getUserAccountFrom().getFirstname(), r.getUserAccountFrom().getLastname(),
+					r.getUserAccountFrom().getMarriageStatus(), r.getUserAccountFrom().getNumberOfChildren(),
+					r.getUserAccountFrom().getPass(), r.getUserAccountFrom().getPhone(),
+					r.getUserAccountFrom().getUsername(), r.getUserAccountFrom().getAddress().getAdditionalInfo(),
+					r.getUserAccountFrom().getAddress().getCity(), r.getUserAccountFrom().getAddress().getCountry(),
+					r.getUserAccountFrom().getAddress().getHomeNumber(),
+					r.getUserAccountFrom().getAddress().getStreet(), r.getUserAccountFrom().getAddress().getZip(),
+					r.getUserAccountFrom().getValid() == 0 ? false : true, files);
 			response.add(tmpObj);
 		}
-		
+
 		return response;
 	}
 
 	@Override
 	@Transactional
 	public String validation(VerifiedClientsRequestDTO request) throws Exception {
-		for(VerifiedClientRequestDTO obj:request.getValidated()) {
-			
+		for (VerifiedClientRequestDTO obj : request.getValidated()) {
+
 			Optional<UserAccount> agentOpt = userAccountRepository.findById(obj.getIdAgent());
-			if(!agentOpt.isPresent()) {
+			if (!agentOpt.isPresent()) {
 				throw new Exception("User Account does not exist!");
 			}
 			UserAccount agent = agentOpt.get();
@@ -470,9 +491,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 			if (!agent.getRole().equals(agentRole)) {
 				throw new Exception("Provided ID is not related to an Agent!");
 			}
-			
+
 			Optional<UserAccount> clientOpt = userAccountRepository.findById(obj.getIdClient());
-			if(!clientOpt.isPresent()) {
+			if (!clientOpt.isPresent()) {
 				throw new Exception("User Account does not exist!");
 			}
 			UserAccount client = clientOpt.get();
@@ -483,46 +504,47 @@ public class UserAccountServiceImpl implements UserAccountService {
 			if (!client.getRole().equals(clientRole)) {
 				throw new Exception("Provided ID is not related to a Client!");
 			}
-			
+
 			Optional<Request> requestOpt = requestRepository.findById(obj.getIdRequest());
-			
-			if(!requestOpt.isPresent()) {
+
+			if (!requestOpt.isPresent()) {
 				throw new Exception("Request not found!");
 			}
-			
+
 			Request req = requestOpt.get();
-			
-			if(obj.getIdAgent() != req.getUserAccountTo().getIdUserAccount()) {
+
+			if (obj.getIdAgent() != req.getUserAccountTo().getIdUserAccount()) {
 				throw new Exception("You are not assigned to this request!");
 			}
-			
-			if(obj.getIdClient() != req.getUserAccountFrom().getIdUserAccount()) {
+
+			if (obj.getIdClient() != req.getUserAccountFrom().getIdUserAccount()) {
 				throw new Exception("Provided client is not associated to this request!");
 			}
-			
-			if(req.getRequestStatus()!=0) {
+
+			if (req.getRequestStatus() != 0) {
 				throw new Exception("Provided request has been already processed!");
 			}
-			
-			if(client.getValid()!=0) {
+
+			if (client.getValid() != 0) {
 				throw new Exception("Provided client has been already processed!");
 			}
-			
-			req.setRequestStatus((byte)1);
-			client.setValid((byte)1);
+
+			req.setRequestStatus((byte) 1);
+			client.setValid((byte) 1);
 			requestRepository.save(req);
 			userAccountRepository.save(client);
 			bankAccountService.createInitialBankAccount(client);
-			emailService.sendVerificationEmail(client.getFirstname(), client.getUsername(), client.getPass(), client.getEmail());
+			emailService.sendVerificationEmail(client.getFirstname(), client.getUsername(), client.getPass(),
+					client.getEmail());
 		}
-		
+
 		return "Success";
 	}
 
 	@Override
 	public AgentResponseDTO getAgentOfClient(int idClient) throws Exception {
 		Optional<UserAccount> clientOpt = userAccountRepository.findById(idClient);
-		if(!clientOpt.isPresent()) {
+		if (!clientOpt.isPresent()) {
 			throw new Exception("User account does not exist!");
 		}
 		UserAccount client = clientOpt.get();
@@ -533,9 +555,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 		if (!client.getRole().equals(clientRole)) {
 			throw new Exception("Provided ID is not related to a Client!");
 		}
-		
-		//List<AgentResponseDTO> response = new ArrayList<AgentResponseDTO>();
-		
+
+		// List<AgentResponseDTO> response = new ArrayList<AgentResponseDTO>();
+
 //		List<Request> requests = requestRepository.findAllByUserAccountFromAndRequestStatus(client, (byte) 1);
 //		
 //		for(Request r:requests) {
@@ -553,19 +575,20 @@ public class UserAccountServiceImpl implements UserAccountService {
 //				}
 // 					
 //			}
-		Optional<UserAccount> agentOpt = Optional.ofNullable(requestRepository.fetchAgentForClient(PageRequest.of(0,1), client, (byte) 1)).filter(list -> !list.isEmpty()).map(list -> list.get(0));
-		if(!agentOpt.isPresent()) {
+		Optional<UserAccount> agentOpt = Optional
+				.ofNullable(requestRepository.fetchAgentForClient(PageRequest.of(0, 1), client, (byte) 1))
+				.filter(list -> !list.isEmpty()).map(list -> list.get(0));
+		if (!agentOpt.isPresent()) {
 			throw new Exception("You have no valid agent!");
 		}
 		UserAccount agent = agentOpt.get();
-		AgentResponseDTO response = new AgentResponseDTO(agent.getEmail(), agent.getFirstname(),
-				agent.getLastname(), agent.getPhone(), agent.getUsername(),
-				agent.getAddress().getAdditionalInfo(), agent.getAddress().getCity(),
-				agent.getAddress().getCountry(), agent.getAddress().getHomeNumber(),
+		AgentResponseDTO response = new AgentResponseDTO(agent.getEmail(), agent.getFirstname(), agent.getLastname(),
+				agent.getPhone(), agent.getUsername(), agent.getAddress().getAdditionalInfo(),
+				agent.getAddress().getCity(), agent.getAddress().getCountry(), agent.getAddress().getHomeNumber(),
 				agent.getAddress().getStreet(), agent.getAddress().getZip(), agent.getIdUserAccount());
-		//response.add(tempObj);
+		// response.add(tempObj);
 		return response;
-		
+
 	}
 
 }

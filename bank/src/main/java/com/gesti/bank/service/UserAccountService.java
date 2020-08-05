@@ -38,7 +38,7 @@ public interface UserAccountService {
 
 	String assignClient(int agentId, AssignClientRequestDTO request) throws Exception;
 
-	List<GetUnresolvedRequestsForAgentResponseDTO> getUnresolvedRequests(int agentId) throws Exception;
+	List<GetUnresolvedRequestsForAgentResponseDTO> getUnresolvedRequests(int agentId, int requestTypeFlag) throws Exception;
 
 	String validation(VerifiedClientsRequestDTO request) throws Exception;
 

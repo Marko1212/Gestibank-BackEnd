@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 import com.gesti.bank.dto.BankAccountResponseDTO;
 import com.gesti.bank.dto.BankAccountTypeResponseDTO;
 import com.gesti.bank.dto.BankRuleResponseDTO;
+import com.gesti.bank.dto.CreateCustomRequestForAgentDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.dto.ModifyBankAccountRequestDTO;
 import com.gesti.bank.model.BankAccount;
@@ -25,6 +26,7 @@ import com.gesti.bank.repository.BankRuleRepository;
 import com.gesti.bank.repository.RequestRepository;
 import com.gesti.bank.repository.UserAccountRepository;
 import com.gesti.bank.service.BankAccountService;
+import com.gesti.bank.util.RequestTitlesUtil;
 
 @Service
 public class BankAccountServiceImpl implements BankAccountService {
@@ -38,6 +40,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 	
 	private final static String RULE_TYPE_CONTAINING_CURRENT_TEXT = "Current";
 	private final static String RULE_TYPE_CONTAINING_SAVING_TEXT = "Saving";
+	private final static String RULE_TYPE_CONTAINING_CHEQUE_TEXT = "Cheque";
 
 	@Autowired
 	BankAccountRepository bankAccountRepository;
@@ -188,13 +191,15 @@ public class BankAccountServiceImpl implements BankAccountService {
 	}
 
 	@Override
-	public List<BankAccountTypeResponseDTO> getBankAccountTypes(int isSavingFlag) throws Exception {
+	public List<BankAccountTypeResponseDTO> getBankAccountTypes(int bankAccountFlag) throws Exception {
 		List<BankAccountTypeResponseDTO> response = new ArrayList<BankAccountTypeResponseDTO>();
 		List<BankAccountType> catchTypes = new ArrayList<BankAccountType>();
-		if(isSavingFlag == 0) {
+		if(bankAccountFlag == 0) {
 			catchTypes = bankAccountTypeRepository.findAllByNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CURRENT_TEXT);
-		}else {
+		}else if(bankAccountFlag == 1){
 			catchTypes = bankAccountTypeRepository.findAllByNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_SAVING_TEXT);
+		}else if(bankAccountFlag == 2) {
+			catchTypes = bankAccountTypeRepository.findAllByNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CHEQUE_TEXT);
 		}
 		for (BankAccountType bat : catchTypes) {
 			BankAccountTypeResponseDTO tmpResObj = new BankAccountTypeResponseDTO();
@@ -206,13 +211,15 @@ public class BankAccountServiceImpl implements BankAccountService {
 	}
 
 	@Override
-	public List<BankRuleResponseDTO> getBankRules(int isSavingFlag) throws Exception {
+	public List<BankRuleResponseDTO> getBankRules(int bankAccountFlag) throws Exception {
 		List<BankRuleResponseDTO> response = new ArrayList<BankRuleResponseDTO>();
 		List<BankRule> catchRules = new ArrayList<BankRule>();
-		if(isSavingFlag==0) {
+		if(bankAccountFlag ==0 ) {
 			catchRules = bankRuleRepository.findAllByRuleNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CURRENT_TEXT);
-		}else {
+		}else if(bankAccountFlag == 1){
 			catchRules = bankRuleRepository.findAllByRuleNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_SAVING_TEXT);
+		}else if(bankAccountFlag == 2) {
+			catchRules = bankRuleRepository.findAllByRuleNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CHEQUE_TEXT);
 		}
 		
 		for (BankRule br : catchRules) {
@@ -324,6 +331,41 @@ public class BankAccountServiceImpl implements BankAccountService {
 		bankAccountRepository.save(bankAcc);
 		return "Success";
 
+	}
+
+	@Override
+	public String createCustomRequestForAgent(CreateCustomRequestForAgentDTO request) throws Exception{
+		Optional<UserAccount> clientAccountOpt = userAccountRepository.findById(request.getLoggedInUserId());
+		if (!clientAccountOpt.isPresent()) {
+			throw new Exception("User account with provided ID does not exist!");
+		}
+		UserAccount client = clientAccountOpt.get();
+		if(client.getValid()!=1) {
+			throw new Exception("User is not valid");
+		}
+		Optional<Request> lastValidatedRequestOpt = requestRepository.findFirstByUserAccountFromAndRequestStatusOrderByIdRequestDesc(client, (byte) 1);
+		if(!lastValidatedRequestOpt.isPresent()) {
+			throw new Exception("We cannot find your agent at the moment, please try again later...");
+		}
+		Request lastValidatedRequest = lastValidatedRequestOpt.get();
+		
+		String requestTitle = request.getTitle();
+		if(!RequestTitlesUtil.requestTitlesForClients.contains(requestTitle)) {
+			throw new Exception("Request title is not valid");
+		}
+		
+		UserAccount agent = lastValidatedRequest.getUserAccountTo();
+		
+		Request newRequest = new Request();
+		newRequest.setDescription(request.getDescription());
+		newRequest.setRequestStatus((byte)0);
+		newRequest.setTime(new Date());
+		newRequest.setTitle(requestTitle);
+		newRequest.setUserAccountFrom(client);
+		newRequest.setUserAccountTo(agent);
+		requestRepository.save(newRequest);
+		
+		return String.format("Agent %s will check your request soon.", agent.getFirstname() + " " + agent.getLastname());
 	}
 
 }

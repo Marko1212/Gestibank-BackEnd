@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.gesti.bank.dto.AssignClientRequestDTO;
@@ -31,11 +32,15 @@ public class AgentController {
 	@Autowired
 	UserAccountService userAccountService;
 	
+	/*
+	 * @Param - requestTypeFlag - 0 CREATE_ACCOUNT, 1 OTHER REQUESTS
+	 */
+	
 	@GetMapping("/getUnresolvedRequests/{id}")
-	public ResponseEntity<List<GetUnresolvedRequestsForAgentResponseDTO>> getUnresolvedRequests(@PathVariable int id) {
+	public ResponseEntity<List<GetUnresolvedRequestsForAgentResponseDTO>> getUnresolvedRequests(@PathVariable int id, @RequestParam(value="requestTypeFlag", defaultValue = "0") String requestTypeFlag) {
 		List<GetUnresolvedRequestsForAgentResponseDTO> response = new ArrayList<GetUnresolvedRequestsForAgentResponseDTO>();
 		try {
-			response = userAccountService.getUnresolvedRequests(id);
+			response = userAccountService.getUnresolvedRequests(id, Integer.parseInt(requestTypeFlag));
 			return new ResponseEntity<List<GetUnresolvedRequestsForAgentResponseDTO>>(response, HttpStatus.OK);
 		}catch (Exception e) {
 			e.printStackTrace();
