@@ -27,6 +27,7 @@ import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.dto.GetUnresolvedRequestsForAgentResponseDTO;
 import com.gesti.bank.dto.LoginRequestDTO;
 import com.gesti.bank.dto.LoginResponseDTO;
+import com.gesti.bank.dto.PasswordChangeRequestDTO;
 import com.gesti.bank.dto.UpdateAgentRequestDTO;
 import com.gesti.bank.dto.VerifiedClientRequestDTO;
 import com.gesti.bank.dto.VerifiedClientsRequestDTO;
@@ -589,6 +590,29 @@ public class UserAccountServiceImpl implements UserAccountService {
 		// response.add(tempObj);
 		return response;
 
+	}
+
+	@Override
+	public String changePassword(PasswordChangeRequestDTO request) throws Exception {
+		Optional<UserAccount> userOpt = userAccountRepository.findById(request.getLoggedInUserId());
+		if (!userOpt.isPresent()) {
+			throw new Exception("User Account does not exist!");
+		}
+		UserAccount loggedInUser = userOpt.get();
+		
+		if (loggedInUser.getValid() == 0) {
+			throw new Exception("User with provided credentials is not valid!");
+		}
+		
+		if (!loggedInUser.getPass().equals(request.getOldPassword())) {
+			throw new Exception("Supplied current password does not match with the password saved in the database!");
+		}
+		
+		loggedInUser.setPass(request.getNewPassword());
+		
+		userAccountRepository.save(loggedInUser);
+		
+		return "Success";
 	}
 
 }

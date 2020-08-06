@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -19,6 +20,7 @@ import com.gesti.bank.dto.CreateClientRequestDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.dto.LoginRequestDTO;
 import com.gesti.bank.dto.LoginResponseDTO;
+import com.gesti.bank.dto.PasswordChangeRequestDTO;
 import com.gesti.bank.service.UserAccountService;
 
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
@@ -68,9 +70,6 @@ public class UserAccountController {
 	}
 	
 	
-	
-	
-	
 	@GetMapping("/getAccount/{id}")
 	public ResponseEntity<GetAccountResponseDTO> getAccount(@PathVariable int id) {
 		GetAccountResponseDTO response = null;
@@ -81,6 +80,19 @@ public class UserAccountController {
 			return new ResponseEntity<GetAccountResponseDTO>(response, HttpStatus.BAD_REQUEST);
 		}
 	}
+	
+	@PutMapping("/changePassword")
+	public ResponseEntity<String> changePassword(@RequestBody PasswordChangeRequestDTO request){
+		String response;
+		try {
+			response = userAccountService.changePassword(request);
+			return new ResponseEntity<String>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response = e.getMessage();
+			return new ResponseEntity<String>(response, HttpStatus.BAD_REQUEST);
+		}
 		
+	}
 
 }
