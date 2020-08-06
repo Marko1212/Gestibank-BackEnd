@@ -114,7 +114,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 		}
 		List<BankAccountResponseDTO> response = new ArrayList<BankAccountResponseDTO>();
 		if (loggedInUser.getRole().getName().equals(ROLE_AGENT)) {
-			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatus(loggedInUser, (byte) 1);
+			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitle(loggedInUser, (byte) 1, RequestTitlesUtil.CREATE_ACCOUNT);
 			for (Request r : requests) {
 				UserAccount client = r.getUserAccountFrom();
 				for (BankAccount bankAcc : client.getBankAccounts()) {
