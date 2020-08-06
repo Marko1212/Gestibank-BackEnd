@@ -8,6 +8,8 @@ import com.gesti.bank.dto.BankRuleResponseDTO;
 import com.gesti.bank.dto.CreateCustomRequestForAgentDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.dto.ModifyBankAccountRequestDTO;
+import com.gesti.bank.dto.RequestsForAgentResolutionDTO;
+import com.gesti.bank.dto.SimpleMessageResponseDTO;
 import com.gesti.bank.model.UserAccount;
 
 public interface BankAccountService {
@@ -27,5 +29,9 @@ public interface BankAccountService {
 	String deactivateBankAccount(int id, int userID) throws Exception;
 
 	String createCustomRequestForAgent(CreateCustomRequestForAgentDTO request) throws Exception;
+
+	SimpleMessageResponseDTO markRequestsAsResolved(RequestsForAgentResolutionDTO request) throws Exception;
+
+
 
 }

@@ -5,6 +5,7 @@ public class PasswordChangeRequestDTO {
 		private int loggedInUserId;
 		private String oldPassword;
 		private String newPassword;
+		
 		public int getLoggedInUserId() {
 			return loggedInUserId;
 		}

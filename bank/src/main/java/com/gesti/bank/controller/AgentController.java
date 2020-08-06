@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.gesti.bank.dto.AssignClientRequestDTO;
 import com.gesti.bank.dto.BankAccountResponseDTO;
 import com.gesti.bank.dto.GetUnresolvedRequestsForAgentResponseDTO;
+import com.gesti.bank.dto.RequestsForAgentResolutionDTO;
+import com.gesti.bank.dto.SimpleMessageResponseDTO;
 import com.gesti.bank.dto.VerifiedClientsRequestDTO;
 import com.gesti.bank.model.BankAccount;
 import com.gesti.bank.service.BankAccountService;
@@ -32,6 +34,8 @@ public class AgentController {
 	@Autowired
 	UserAccountService userAccountService;
 	
+	@Autowired
+	BankAccountService bankAccountService;
 	/*
 	 * @Param - requestTypeFlag - 0 CREATE_ACCOUNT, 1 OTHER REQUESTS
 	 */
@@ -59,4 +63,17 @@ public class AgentController {
 		}
 	}
 	
+	@PostMapping("/markRequestsAsResolved")
+	public ResponseEntity<?> markRequestsAsResolved(@RequestBody RequestsForAgentResolutionDTO request) {
+		
+		SimpleMessageResponseDTO response = null;
+		try {
+			response = bankAccountService.markRequestsAsResolved(request);
+			return new ResponseEntity<SimpleMessageResponseDTO>(response, HttpStatus.OK);
+			
+		} catch (Exception e) {
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
+		}
+		
+	}
 }

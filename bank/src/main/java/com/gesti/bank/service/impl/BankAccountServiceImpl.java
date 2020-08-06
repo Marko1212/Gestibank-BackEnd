@@ -15,15 +15,19 @@ import com.gesti.bank.dto.BankRuleResponseDTO;
 import com.gesti.bank.dto.CreateCustomRequestForAgentDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.dto.ModifyBankAccountRequestDTO;
+import com.gesti.bank.dto.RequestsForAgentResolutionDTO;
+import com.gesti.bank.dto.SimpleMessageResponseDTO;
 import com.gesti.bank.model.BankAccount;
 import com.gesti.bank.model.BankAccountType;
 import com.gesti.bank.model.BankRule;
 import com.gesti.bank.model.Request;
+import com.gesti.bank.model.Role;
 import com.gesti.bank.model.UserAccount;
 import com.gesti.bank.repository.BankAccountRepository;
 import com.gesti.bank.repository.BankAccountTypeRepository;
 import com.gesti.bank.repository.BankRuleRepository;
 import com.gesti.bank.repository.RequestRepository;
+import com.gesti.bank.repository.RoleRepository;
 import com.gesti.bank.repository.UserAccountRepository;
 import com.gesti.bank.service.BankAccountService;
 import com.gesti.bank.util.RequestTitlesUtil;
@@ -56,6 +60,9 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 	@Autowired
 	RequestRepository requestRepository;
+	
+	@Autowired
+	RoleRepository roleRepository;
 
 	@Override
 	public void createInitialBankAccount(UserAccount client) throws Exception {
@@ -366,6 +373,49 @@ public class BankAccountServiceImpl implements BankAccountService {
 		requestRepository.save(newRequest);
 		
 		return String.format("Agent %s will check your request soon!", agent.getFirstname() + " " + agent.getLastname());
+	}
+
+	@Override
+	public SimpleMessageResponseDTO markRequestsAsResolved(RequestsForAgentResolutionDTO request) throws Exception {
+		
+		System.out.println("Stigao mi je request za agenta " + request.getLoggedInAgentId());
+
+		Optional<UserAccount> agentOpt = userAccountRepository.findById(request.getLoggedInAgentId());
+		
+		if (!agentOpt.isPresent()) {
+			throw new Exception("User account with provided ID does not exist!");
+		}
+		UserAccount agent = agentOpt.get();
+		
+		if(agent.getValid()!=1) {
+			throw new Exception("User is not valid!");
+		}
+		
+		Role roleAgent = roleRepository.findByName(ROLE_AGENT);
+		
+		if (roleAgent == null) {
+			throw new Exception("Provided role does not exist!");
+		}
+		
+		if (!agent.getRole().equals(roleAgent)) {
+			throw new Exception("User is not an agent!");
+		}
+		
+		for (Integer requestId: request.getIdRequestsIdList()) {
+			Optional<Request> reqOpt = requestRepository.findById(requestId);
+			if(!reqOpt.isPresent()) {
+				throw new Exception("Request with request id " + requestId + " does not exist!");
+			}
+			Request req = reqOpt.get();
+			if(!req.getUserAccountTo().equals(agent)) {
+				throw new Exception("Request with request id " + requestId + " is not assigned to you!");
+			}
+			
+			req.setRequestStatus((byte) 1);
+			requestRepository.save(req);
+		}
+		
+		return new SimpleMessageResponseDTO("Success");
 	}
 
 }
