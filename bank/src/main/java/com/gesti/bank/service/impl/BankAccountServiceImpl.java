@@ -372,7 +372,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 		newRequest.setUserAccountTo(agent);
 		requestRepository.save(newRequest);
 		
-		return String.format("Agent %s will check your request soon!", agent.getFirstname() + " " + agent.getLastname());
+		return String.format("Agent %s will process your request soon!", agent.getFirstname() + " " + agent.getLastname());
 	}
 
 	@Override
