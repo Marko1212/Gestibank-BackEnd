@@ -4,13 +4,14 @@ import java.util.List;
 
 public class RequestsForAgentResolutionDTO {
 	
-	private List<Integer> idRequestsIdList;
+	private List<Integer> requestsIdList;
 	private int loggedInAgentId;
-	public List<Integer> getIdRequestsIdList() {
-		return idRequestsIdList;
+	
+	public List<Integer> getRequestsIdList() {
+		return requestsIdList;
 	}
-	public void setIdRequestsIdList(List<Integer> idRequestsIdList) {
-		this.idRequestsIdList = idRequestsIdList;
+	public void setRequestsIdList(List<Integer> requestsIdList) {
+		this.requestsIdList = requestsIdList;
 	}
 	public int getLoggedInAgentId() {
 		return loggedInAgentId;

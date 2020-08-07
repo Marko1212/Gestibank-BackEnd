@@ -401,7 +401,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 			throw new Exception("User is not an agent!");
 		}
 		
-		for (Integer requestId: request.getIdRequestsIdList()) {
+		for (Integer requestId: request.getRequestsIdList()) {
 			Optional<Request> reqOpt = requestRepository.findById(requestId);
 			if(!reqOpt.isPresent()) {
 				throw new Exception("Request with request id " + requestId + " does not exist!");

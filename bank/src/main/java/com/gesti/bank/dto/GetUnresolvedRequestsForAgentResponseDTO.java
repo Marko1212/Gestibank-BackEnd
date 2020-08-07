@@ -8,6 +8,8 @@ public class GetUnresolvedRequestsForAgentResponseDTO {
 	private String title;
 	private String description;
 	private Date time;
+	private byte requestStatus;
+	
 	
 	private int idClient;
 	private String email;
@@ -28,7 +30,7 @@ public class GetUnresolvedRequestsForAgentResponseDTO {
 	
 	List<FileInfoResponseDTO> files;
 
-	public GetUnresolvedRequestsForAgentResponseDTO(int idRequest, String title, String description, Date time,
+	public GetUnresolvedRequestsForAgentResponseDTO(int idRequest, String title, String description, Date time, byte requestStatus,
 			int idClient, String email, String firstname, String lastname, String marriageStatus, int numberOfChildren,
 			String pass, String phone, String username, String additionalInfoAddress, String city, String country,
 			String homeNumber, String street, int zip, boolean valid, List<FileInfoResponseDTO> files) {
@@ -37,6 +39,7 @@ public class GetUnresolvedRequestsForAgentResponseDTO {
 		this.title = title;
 		this.description = description;
 		this.time = time;
+		this.requestStatus = requestStatus;
 		this.idClient = idClient;
 		this.email = email;
 		this.firstname = firstname;
@@ -87,6 +90,15 @@ public class GetUnresolvedRequestsForAgentResponseDTO {
 	public void setTime(Date time) {
 		this.time = time;
 	}
+	
+	public byte getRequestStatus() {
+		return requestStatus;
+	}
+
+	public void setRequestStatus(byte requestStatus) {
+		this.requestStatus = requestStatus;
+	}
+
 
 	public int getIdClient() {
 		return idClient;

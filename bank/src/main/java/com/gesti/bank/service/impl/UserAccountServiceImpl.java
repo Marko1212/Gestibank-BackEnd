@@ -459,7 +459,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 				}
 			}
 			GetUnresolvedRequestsForAgentResponseDTO tmpObj = new GetUnresolvedRequestsForAgentResponseDTO(
-					r.getIdRequest(), r.getTitle(), r.getDescription(), r.getTime(),
+					r.getIdRequest(), r.getTitle(), r.getDescription(), r.getTime(), r.getRequestStatus(),
 					r.getUserAccountFrom().getIdUserAccount(), r.getUserAccountFrom().getEmail(),
 					r.getUserAccountFrom().getFirstname(), r.getUserAccountFrom().getLastname(),
 					r.getUserAccountFrom().getMarriageStatus(), r.getUserAccountFrom().getNumberOfChildren(),
