@@ -117,19 +117,33 @@ public class BankAccountServiceImpl implements BankAccountService {
 			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitle(loggedInUser, (byte) 1, RequestTitlesUtil.CREATE_ACCOUNT);
 			for (Request r : requests) {
 				UserAccount client = r.getUserAccountFrom();
+				if (client.getValid() == (byte) 1) {
+				boolean clientSavingAccountFlag = false;
 				for (BankAccount bankAcc : client.getBankAccounts()) {
+					if (bankAcc.getBankAccountType().getName().equals("Saving") && bankAcc.getBankAccountStatus() == (byte)1) {
+						clientSavingAccountFlag = true;
+					}
+				}
+					for (BankAccount bankAcc : client.getBankAccounts()) {
 					if (bankAcc.getBankAccountStatus() == (byte) 1) {
 						BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
 								bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(),
 								bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
 								bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
 								bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
-								bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate());
+								bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate(), clientSavingAccountFlag);
 						response.add(tmpObj);
 					}
 				}
 			}
+			}
 		} else if (loggedInUser.getRole().getName().equals(ROLE_CLIENT)) {
+			boolean savingAccountFlag = false;
+			for (BankAccount bankAcc : loggedInUser.getBankAccounts()) {
+				if (bankAcc.getBankAccountType().getName().equals("Saving") && bankAcc.getBankAccountStatus() == (byte)1) {
+					savingAccountFlag = true;
+				}
+			}
 			for (BankAccount bankAcc : loggedInUser.getBankAccounts()) {
 				if (bankAcc.getBankAccountStatus() == (byte) 1) {
 					BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
@@ -137,7 +151,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 							bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
 							bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
 							bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
-							bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate());
+							bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate(), savingAccountFlag);
 					response.add(tmpObj);
 				}
 			}
@@ -193,7 +207,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 				bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
 				bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
 				bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
-				bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate());
+				bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate(), bankAcc.getBankAccountType().getName().equals("Saving")?true:false);
 		return response;
 	}
 

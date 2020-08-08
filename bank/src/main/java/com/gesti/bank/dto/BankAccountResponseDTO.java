@@ -17,11 +17,12 @@ public class BankAccountResponseDTO {
 	private float bankRulePercent;
 	private String bankRuleName;
 	private Date creationDate;
+	private boolean clientSavingAccountFlag;
 	
 	
 	public BankAccountResponseDTO(int idBankAccount, String bankAccountNumber, int bankAccountTypeId,
 			String bankAccountTypeName, int userAccountId, String userAccountFullName, int bankRuleId,
-			float bankRulePercent, String bankRuleName, Date creationDate) {
+			float bankRulePercent, String bankRuleName, Date creationDate, boolean clientSavingAccountFlag) {
 		super();
 		this.idBankAccount = idBankAccount;
 		this.bankAccountNumber = bankAccountNumber;
@@ -33,6 +34,7 @@ public class BankAccountResponseDTO {
 		this.bankRulePercent = bankRulePercent;
 		this.bankRuleName = bankRuleName;
 		this.creationDate = creationDate;
+		this.clientSavingAccountFlag = clientSavingAccountFlag;
 	}
 	public int getIdBankAccount() {
 		return idBankAccount;
@@ -94,5 +96,12 @@ public class BankAccountResponseDTO {
 	public void setCreationDate(Date creationDate) {
 		this.creationDate = creationDate;
 	}
+	public boolean isClientSavingAccountFlag() {
+		return clientSavingAccountFlag;
+	}
+	public void setSavingAccountFlag(boolean clientSavingAccountFlag) {
+		this.clientSavingAccountFlag = clientSavingAccountFlag;
+	}
+	
 	
 }
