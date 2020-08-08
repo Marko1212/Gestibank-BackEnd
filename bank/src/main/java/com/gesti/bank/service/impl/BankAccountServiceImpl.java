@@ -364,6 +364,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 		UserAccount agent = lastValidatedRequest.getUserAccountTo();
 		
 		Request newRequest = new Request();
+		
 		newRequest.setDescription(request.getDescription());
 		newRequest.setRequestStatus((byte)0);
 		newRequest.setTime(new Date());
