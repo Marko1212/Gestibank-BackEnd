@@ -99,7 +99,7 @@ public class BankAccountResponseDTO {
 	public boolean isClientSavingAccountFlag() {
 		return clientSavingAccountFlag;
 	}
-	public void setSavingAccountFlag(boolean clientSavingAccountFlag) {
+	public void setClientSavingAccountFlag(boolean clientSavingAccountFlag) {
 		this.clientSavingAccountFlag = clientSavingAccountFlag;
 	}
 	

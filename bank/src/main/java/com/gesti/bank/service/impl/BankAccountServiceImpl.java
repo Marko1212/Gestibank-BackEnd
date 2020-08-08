@@ -122,9 +122,10 @@ public class BankAccountServiceImpl implements BankAccountService {
 				for (BankAccount bankAcc : client.getBankAccounts()) {
 					if (bankAcc.getBankAccountType().getName().equals("Saving") && bankAcc.getBankAccountStatus() == (byte)1) {
 						clientSavingAccountFlag = true;
+						break;
 					}
 				}
-					for (BankAccount bankAcc : client.getBankAccounts()) {
+				for (BankAccount bankAcc : client.getBankAccounts()) {
 					if (bankAcc.getBankAccountStatus() == (byte) 1) {
 						BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
 								bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(),
@@ -138,10 +139,11 @@ public class BankAccountServiceImpl implements BankAccountService {
 			}
 			}
 		} else if (loggedInUser.getRole().getName().equals(ROLE_CLIENT)) {
-			boolean savingAccountFlag = false;
+			boolean clientSavingAccountFlag = false;
 			for (BankAccount bankAcc : loggedInUser.getBankAccounts()) {
 				if (bankAcc.getBankAccountType().getName().equals("Saving") && bankAcc.getBankAccountStatus() == (byte)1) {
-					savingAccountFlag = true;
+					clientSavingAccountFlag = true;
+					break;
 				}
 			}
 			for (BankAccount bankAcc : loggedInUser.getBankAccounts()) {
@@ -151,7 +153,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 							bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
 							bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
 							bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
-							bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate(), savingAccountFlag);
+							bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate(), clientSavingAccountFlag);
 					response.add(tmpObj);
 				}
 			}
@@ -166,6 +168,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 	@Override
 	public BankAccountResponseDTO getBankAccount(int id, int userID) throws Exception {
+		boolean clientSavingAccountFlag = false;
 		Optional<UserAccount> userAccountOpt = userAccountRepository.findById(userID);
 		if (!userAccountOpt.isPresent()) {
 			throw new Exception("User account with provided ID does not exist!");
@@ -181,17 +184,33 @@ public class BankAccountServiceImpl implements BankAccountService {
 		}
 		if (user.getRole().getName().equals(ROLE_AGENT)) {
 			boolean havePermission = false;
-			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatus(user, (byte) 1);
+			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitle(user, (byte) 1, RequestTitlesUtil.CREATE_ACCOUNT);
+			for (Request req : requests) {
+				if (clientSavingAccountFlag) {
+					break;
+				}
+				UserAccount client = req.getUserAccountFrom();
+				if (client.getValid() == (byte) 1) {
+				for (BankAccount bankAccount : client.getBankAccounts()) {
+					if (bankAccount.getBankAccountType().getName().equals("Saving") && bankAccount.getBankAccountStatus() == (byte)1) {
+						clientSavingAccountFlag = true;
+						break;
+					}
+				}
+				}
+			}
 			for (Request r : requests) {
 				if (havePermission) {
 					break;
 				}
 				UserAccount client = r.getUserAccountFrom();
+				if (client.getValid() == (byte) 1) {
 				for (BankAccount tmpBankAcc : client.getBankAccounts()) {
 					if (tmpBankAcc.getIdBankAccount() == bankAcc.getIdBankAccount()) {
 						havePermission = true;
 						break;
 					}
+				}
 				}
 			}
 			if (!havePermission) {
@@ -201,13 +220,21 @@ public class BankAccountServiceImpl implements BankAccountService {
 			if (bankAcc.getUserAccount().getIdUserAccount() != user.getIdUserAccount()) {
 				throw new Exception("That is not your account!");
 			}
+			
+			for (BankAccount bankAccount : user.getBankAccounts()) {
+				if (bankAccount.getBankAccountType().getName().equals("Saving") && bankAccount.getBankAccountStatus() == (byte)1) {
+					clientSavingAccountFlag = true;
+					break;
+				}
+			}
 		}
+
 		BankAccountResponseDTO response = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
 				bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(),
 				bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
 				bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
 				bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
-				bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate(), bankAcc.getBankAccountType().getName().equals("Saving")?true:false);
+				bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate(), clientSavingAccountFlag);
 		return response;
 	}
 
