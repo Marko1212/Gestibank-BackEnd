@@ -5,6 +5,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import org.joda.time.DateTime;
+import org.joda.time.Days;
 
 import javax.transaction.Transactional;
 
@@ -257,6 +259,8 @@ public class TransactionServiceImpl implements TransactionService {
 		}
 		List<Transaction> listTransactions = transactionRepository.findByBankAccountFromOrBankAccountTo(bankAccount,
 				bankAccount);
+
+		//listTransactions.removeIf(transaction -> Days.daysBetween(new DateTime(transaction.getTime()), new DateTime(new Date())).getDays() > 30);
 		List<TransactionResponseDTO> response = new ArrayList<TransactionResponseDTO>();
 		for (Transaction transaction : listTransactions) {
 			TransactionResponseDTO tempObj = new TransactionResponseDTO(

@@ -136,7 +136,8 @@ public class UserAccountServiceImpl implements UserAccountService {
 		documentRepository.save(idDocumentDoc);
 		documentRepository.save(proofHomeDoc);
 		documentRepository.save(proofSalaryDoc);
-
+		emailService.sendConfirmationOfReceiptOfRequestEmail(userAccount.getFirstname(), userAccount.getEmail());
+		
 		return "Success";
 	}
 

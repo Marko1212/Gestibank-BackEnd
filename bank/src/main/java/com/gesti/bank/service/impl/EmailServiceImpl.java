@@ -54,5 +54,36 @@ public class EmailServiceImpl implements EmailService{
 		}
 		return content.toString();
 	}
+	
+	public String getContentFromTemplateReceipt(VelocityContext model) {
+		StringWriter content = new StringWriter();
+		try {
+			velocityEngine.mergeTemplate("/templates/receipt.vm", "UTF-8", model, content);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return content.toString();
+	}
+
+	@Override
+	public void sendConfirmationOfReceiptOfRequestEmail(String name, String emailTo) {
+		VelocityContext context = new VelocityContext();
+		context.put("name", name);
+
+		MimeMessage mimeMessage = mailSender.createMimeMessage();
+		try {
+			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+			mimeMessageHelper.setSubject("Thank you for your request for Bank Account Creation!");
+			mimeMessageHelper.setFrom("gestibank1212@gmail.com");
+			mimeMessageHelper.setTo(emailTo);
+			mimeMessageHelper.setText(getContentFromTemplateReceipt(context), true);
+			new Thread(() ->  {
+				mailSender.send(mimeMessageHelper.getMimeMessage());
+			}).start();
+		}catch (MessagingException e) {
+			e.printStackTrace();
+		}
+		
+	}
 
 }
