@@ -86,4 +86,35 @@ public class EmailServiceImpl implements EmailService{
 		
 	}
 
+	@Override
+	public void sendRejectionEmail(String name, String emailTo) {
+		VelocityContext context = new VelocityContext();
+		context.put("name", name);
+
+		MimeMessage mimeMessage = mailSender.createMimeMessage();
+		try {
+			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+			mimeMessageHelper.setSubject("Your request for Bank Account has been rejected");
+			mimeMessageHelper.setFrom("gestibank1212@gmail.com");
+			mimeMessageHelper.setTo(emailTo);
+			mimeMessageHelper.setText(getContentFromTemplateRejection(context), true);
+			new Thread(() ->  {
+				mailSender.send(mimeMessageHelper.getMimeMessage());
+			}).start();
+		}catch (MessagingException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public String getContentFromTemplateRejection(VelocityContext model) {
+		StringWriter content = new StringWriter();
+		try {
+			velocityEngine.mergeTemplate("/templates/rejection.vm", "UTF-8", model, content);
+		}catch (Exception e) {
+			e.printStackTrace();
+		}
+		return content.toString();
+	}
+
 }

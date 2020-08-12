@@ -120,7 +120,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 				if (client.getValid() == (byte) 1) {
 				boolean clientSavingAccountFlag = false;
 				for (BankAccount bankAcc : client.getBankAccounts()) {
-					if (bankAcc.getBankAccountType().getName().equals("Saving") && bankAcc.getBankAccountStatus() == (byte)1) {
+					if (bankAcc.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT) && bankAcc.getBankAccountStatus() == (byte)1) {
 						clientSavingAccountFlag = true;
 						break;
 					}
@@ -141,7 +141,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 		} else if (loggedInUser.getRole().getName().equals(ROLE_CLIENT)) {
 			boolean clientSavingAccountFlag = false;
 			for (BankAccount bankAcc : loggedInUser.getBankAccounts()) {
-				if (bankAcc.getBankAccountType().getName().equals("Saving") && bankAcc.getBankAccountStatus() == (byte)1) {
+				if (bankAcc.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT) && bankAcc.getBankAccountStatus() == (byte)1) {
 					clientSavingAccountFlag = true;
 					break;
 				}

@@ -1,5 +1,6 @@
 package com.gesti.bank.service;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.util.stream.Stream;
 
@@ -16,4 +17,6 @@ public interface FilesStorageService {
   public void deleteAll();
 
   public Stream<Path> loadAll();
+  
+  public boolean deleteDirectory(File directoryToBeDeleted);
 }

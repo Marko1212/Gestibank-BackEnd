@@ -1,5 +1,6 @@
 package com.gesti.bank.service.impl;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -73,5 +74,16 @@ public class FilesStorageServiceImpl implements FilesStorageService {
       throw new RuntimeException("Could not load the files!");
     }
   }
+  
+  @Override
+  public boolean deleteDirectory(File directoryToBeDeleted) {
+	    File[] allContents = directoryToBeDeleted.listFiles();
+	    if (allContents != null) {
+	        for (File file : allContents) {
+	            deleteDirectory(file);
+	        }
+	    }
+	    return directoryToBeDeleted.delete();
+	}
 
 }

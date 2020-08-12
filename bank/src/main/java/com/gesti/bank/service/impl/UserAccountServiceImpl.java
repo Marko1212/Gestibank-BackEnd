@@ -1,5 +1,7 @@
 package com.gesti.bank.service.impl;
 
+import java.io.File;
+import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -44,6 +46,7 @@ import com.gesti.bank.repository.RoleRepository;
 import com.gesti.bank.repository.UserAccountRepository;
 import com.gesti.bank.service.BankAccountService;
 import com.gesti.bank.service.EmailService;
+import com.gesti.bank.service.FilesStorageService;
 import com.gesti.bank.service.UserAccountService;
 import com.gesti.bank.util.RequestTitlesUtil;
 
@@ -76,6 +79,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 
 	@Autowired
 	RoleRepository roleRepository;
+	
+	@Autowired
+	FilesStorageService fileStorageService;
 
 	@Autowired
 	UserAccountRepository userAccountRepository;
@@ -123,10 +129,21 @@ public class UserAccountServiceImpl implements UserAccountService {
 		final Path rootForUser = Paths.get("uploads/" + userAccount.getIdUserAccount());
 		Files.createDirectory(rootForUser);
 
-		Files.copy(idDocument.getInputStream(), rootForUser.resolve(idDocument.getOriginalFilename()));
-		Files.copy(proofHome.getInputStream(), rootForUser.resolve(proofHome.getOriginalFilename()));
-		Files.copy(proofSalary.getInputStream(), rootForUser.resolve(proofSalary.getOriginalFilename()));
-
+		try {
+			Files.copy(idDocument.getInputStream(), rootForUser.resolve(idDocument.getOriginalFilename()));
+		} catch (FileAlreadyExistsException ignore) {
+			//ignore exception
+		}
+		try {
+			Files.copy(proofHome.getInputStream(), rootForUser.resolve(proofHome.getOriginalFilename()));
+		} catch (FileAlreadyExistsException ignore) {
+			//ignore exception
+		}
+		try {
+			Files.copy(proofSalary.getInputStream(), rootForUser.resolve(proofSalary.getOriginalFilename()));
+		} catch (FileAlreadyExistsException ignore) {
+			//ignore exception
+		}
 		Document idDocumentDoc = new Document(IDENTIFICATION_DOCUMENT,
 				rootForUser.toString() + "\\" + idDocument.getOriginalFilename(), userAccount);
 		Document proofHomeDoc = new Document(PROOF_HOME,
@@ -137,7 +154,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 		documentRepository.save(proofHomeDoc);
 		documentRepository.save(proofSalaryDoc);
 		emailService.sendConfirmationOfReceiptOfRequestEmail(userAccount.getFirstname(), userAccount.getEmail());
-		
+
 		return "Success";
 	}
 
@@ -530,18 +547,33 @@ public class UserAccountServiceImpl implements UserAccountService {
 			if (client.getValid() != 0) {
 				throw new Exception("Provided client has been already processed!");
 			}
-
-			req.setRequestStatus((byte) 1);
-			client.setValid((byte) 1);
-			requestRepository.save(req);
-			userAccountRepository.save(client);
-			bankAccountService.createInitialBankAccount(client);
-			emailService.sendVerificationEmail(client.getFirstname(), client.getUsername(), client.getPass(),
-					client.getEmail());
+			if (obj.isValid()) {
+				req.setRequestStatus((byte) 1);
+				client.setValid((byte) 1);
+				requestRepository.save(req);
+				userAccountRepository.save(client);
+				bankAccountService.createInitialBankAccount(client);
+				emailService.sendVerificationEmail(client.getFirstname(), client.getUsername(), client.getPass(),
+						client.getEmail());
+			} else {
+				
+				for(Document doc:client.getDocuments()) {
+					documentRepository.delete(doc);
+					
+				}
+				final Path rootForUser = Paths.get("uploads/" + client.getIdUserAccount());
+				fileStorageService.deleteDirectory(rootForUser.toFile());
+				requestRepository.delete(req);
+				userAccountRepository.delete(client);
+				addressRepository.delete(client.getAddress());
+				emailService.sendRejectionEmail(client.getFirstname(), client.getEmail());
+			}
 		}
 
 		return "Success";
 	}
+	
+	
 
 	@Override
 	public AgentResponseDTO getAgentOfClient(int idClient) throws Exception {
@@ -600,19 +632,19 @@ public class UserAccountServiceImpl implements UserAccountService {
 			throw new Exception("User Account does not exist!");
 		}
 		UserAccount loggedInUser = userOpt.get();
-		
+
 		if (loggedInUser.getValid() == 0) {
 			throw new Exception("User with provided credentials is not valid!");
 		}
-		
+
 		if (!loggedInUser.getPass().equals(request.getOldPassword())) {
 			throw new Exception("Supplied current password does not match with the password saved in the database!");
 		}
-		
+
 		loggedInUser.setPass(request.getNewPassword());
-		
+
 		userAccountRepository.save(loggedInUser);
-		
+
 		return "Success";
 	}
 
