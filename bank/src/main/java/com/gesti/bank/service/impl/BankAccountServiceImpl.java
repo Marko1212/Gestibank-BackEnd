@@ -41,7 +41,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 	private final static String ROLE_ADMIN = "admin";
 	private final static String ROLE_CLIENT = "client";
 	private final static String ROLE_AGENT = "agent";
-	
+
 	private final static String RULE_TYPE_CONTAINING_CURRENT_TEXT = "Current";
 	private final static String RULE_TYPE_CONTAINING_SAVING_TEXT = "Saving";
 	private final static String RULE_TYPE_CONTAINING_CHEQUE_TEXT = "Cheque";
@@ -60,7 +60,7 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 	@Autowired
 	RequestRepository requestRepository;
-	
+
 	@Autowired
 	RoleRepository roleRepository;
 
@@ -113,41 +113,67 @@ public class BankAccountServiceImpl implements BankAccountService {
 			throw new Exception("User with provided credentials is not valid!");
 		}
 		List<BankAccountResponseDTO> response = new ArrayList<BankAccountResponseDTO>();
+		// u slucaju da je logovani juzer agent
 		if (loggedInUser.getRole().getName().equals(ROLE_AGENT)) {
-			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitle(loggedInUser, (byte) 1, RequestTitlesUtil.CREATE_ACCOUNT);
+			// razmatraju se validni rikvestovi za otvaranje tekuceg racuna koje je dobio
+			// ulogovani agent
+			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitle(loggedInUser,
+					(byte) 1, RequestTitlesUtil.CREATE_ACCOUNT);
 			for (Request r : requests) {
 				UserAccount client = r.getUserAccountFrom();
+				// proveriti da li validni klijenti tog agenta imaju stedni racun.
 				if (client.getValid() == (byte) 1) {
-				boolean clientSavingAccountFlag = false;
-				for (BankAccount bankAcc : client.getBankAccounts()) {
-					if (bankAcc.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT) && bankAcc.getBankAccountStatus() == (byte)1) {
-						clientSavingAccountFlag = true;
-						break;
+					boolean clientSavingAccountFlag = false;
+					for (BankAccount bankAcc : client.getBankAccounts()) {
+						// ako je racun odredjenog klijenta validan i tipa "saving" staviti
+						// clientSavingAccountFlag na true i preci na pravljenje DTO response
+						// objekta/objekata za tog klijenta
+						if (bankAcc.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
+								&& bankAcc.getBankAccountStatus() == (byte) 1) {
+							clientSavingAccountFlag = true;
+							break;
+						}
+					}
+					for (BankAccount bankAcc : client.getBankAccounts()) {
+						// uzeti u obzir samo validne racune tog klijenta, bilo kog tipa bili. Ukoliko
+						// klijent ima validni stedni racun, clientSavingAccountFlag ima vrednost true
+						// za sve njegove racune (i current i saving). Ukoliko ne,
+						// clientSavingAccountFlag ima vrednost false.
+						if (bankAcc.getBankAccountStatus() == (byte) 1) {
+							BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
+									bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(),
+									bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
+									bankAcc.getUserAccount().getFirstname() + " "
+											+ bankAcc.getUserAccount().getLastname(),
+									bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
+									bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate(),
+									clientSavingAccountFlag);
+							response.add(tmpObj);
+						}
 					}
 				}
-				for (BankAccount bankAcc : client.getBankAccounts()) {
-					if (bankAcc.getBankAccountStatus() == (byte) 1) {
-						BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
-								bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(),
-								bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
-								bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
-								bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
-								bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate(), clientSavingAccountFlag);
-						response.add(tmpObj);
-					}
-				}
-			}
-			}
-		} else if (loggedInUser.getRole().getName().equals(ROLE_CLIENT)) {
+			} // ovde se prelazi na razmatranje sledeceg request-a
+		}
+		// u slucaju da je logovani juzer klijent (iznad je vec provereno da li je juzer
+		// validan)
+		else if (loggedInUser.getRole().getName().equals(ROLE_CLIENT)) {
 			boolean clientSavingAccountFlag = false;
+			// proveravaju se svi validni racuni tog klijenta, bilo kog tipa. Ukoliko se
+			// nadje validni stedni racun, flag se stavlja na true i prelazi se na stvaranje
+			// DTO
+			// response objekta/objekata
 			for (BankAccount bankAcc : loggedInUser.getBankAccounts()) {
-				if (bankAcc.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT) && bankAcc.getBankAccountStatus() == (byte)1) {
+				if (bankAcc.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
+						&& bankAcc.getBankAccountStatus() == (byte) 1) {
 					clientSavingAccountFlag = true;
 					break;
 				}
 			}
 			for (BankAccount bankAcc : loggedInUser.getBankAccounts()) {
 				if (bankAcc.getBankAccountStatus() == (byte) 1) {
+					// u koliko taj ulogovani klijent ima validni stedni racun,
+					// clientSavingAccountFlag ima vrednost true, za sve njegove validne racune
+					// (bilo kog tipa bili)
 					BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
 							bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(),
 							bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
@@ -174,6 +200,9 @@ public class BankAccountServiceImpl implements BankAccountService {
 			throw new Exception("User account with provided ID does not exist!");
 		}
 		UserAccount user = userAccountOpt.get();
+		if (user.getValid() == 0) {
+			throw new Exception("User with provided credentials is not valid!");
+		}
 		Optional<BankAccount> bankAccountOpt = bankAccountRepository.findById(id);
 		if (!bankAccountOpt.isPresent()) {
 			throw new Exception("Bank account with provided ID does not exist!");
@@ -182,53 +211,65 @@ public class BankAccountServiceImpl implements BankAccountService {
 		if (bankAcc.getBankAccountStatus() == (byte) 0) {
 			throw new Exception("Bank account with provided ID is not active!");
 		}
+		// u slucaju da je ulogovani juzer agent
 		if (user.getRole().getName().equals(ROLE_AGENT)) {
+
+			// prvo se proverava da li agent ima pravo dostupa racunu tog klijenta, odnosno,
+			// da li je taj klijent dodeljen njemu ili nije
 			boolean havePermission = false;
-			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitle(user, (byte) 1, RequestTitlesUtil.CREATE_ACCOUNT);
-			for (Request req : requests) {
-				if (clientSavingAccountFlag) {
-					break;
-				}
-				UserAccount client = req.getUserAccountFrom();
-				if (client.getValid() == (byte) 1) {
-				for (BankAccount bankAccount : client.getBankAccounts()) {
-					if (bankAccount.getBankAccountType().getName().equals("Saving") && bankAccount.getBankAccountStatus() == (byte)1) {
-						clientSavingAccountFlag = true;
-						break;
-					}
-				}
-				}
-			}
+			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitle(user, (byte) 1,
+					RequestTitlesUtil.CREATE_ACCOUNT);
 			for (Request r : requests) {
 				if (havePermission) {
 					break;
 				}
 				UserAccount client = r.getUserAccountFrom();
+				// razmatraju se samo validni klijenti
 				if (client.getValid() == (byte) 1) {
-				for (BankAccount tmpBankAcc : client.getBankAccounts()) {
-					if (tmpBankAcc.getIdBankAccount() == bankAcc.getIdBankAccount()) {
-						havePermission = true;
-						break;
+					for (BankAccount tmpBankAcc : client.getBankAccounts()) {
+						if (tmpBankAcc.getIdBankAccount() == bankAcc.getIdBankAccount()) {
+							havePermission = true;
+							break;
+						}
 					}
-				}
 				}
 			}
 			if (!havePermission) {
 				throw new Exception("That is not your client!");
 			}
-		} else if (user.getRole().getName().equals(ROLE_CLIENT)) {
+			// ukoliko agent ima pravo dostupa tom racunu
+			UserAccount client = bankAcc.getUserAccount(); // iznad je vec provereno da je taj klijent validan
+			for (BankAccount bankAccount : client.getBankAccounts()) {
+				// prolazi se kroz sve validne racune, bilo kog tipa, tog klijenta i ukoliko se
+				// pronadje validan stedni racun, flag se stavlja na
+				// true, inace ostaje false
+				if (bankAccount.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
+						&& bankAccount.getBankAccountStatus() == (byte) 1) {
+					clientSavingAccountFlag = true;
+					break;
+				}
+			}
+
+		} // u slucaju da je ulogovani juzer klijent
+		else if (user.getRole().getName().equals(ROLE_CLIENT))
+
+		{
 			if (bankAcc.getUserAccount().getIdUserAccount() != user.getIdUserAccount()) {
 				throw new Exception("That is not your account!");
 			}
-			
+
 			for (BankAccount bankAccount : user.getBankAccounts()) {
-				if (bankAccount.getBankAccountType().getName().equals("Saving") && bankAccount.getBankAccountStatus() == (byte)1) {
+				// prolazi se kroz sve validne racune, bilo kog tipa, tog klijenta i ukoliko se
+				// pronadje validan stedni racun, flag se stavlja na
+				// true, inace ostaje false
+				if (bankAccount.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
+						&& bankAccount.getBankAccountStatus() == (byte) 1) {
 					clientSavingAccountFlag = true;
 					break;
 				}
 			}
 		}
-
+// ovde se napravi DTO Response objekat
 		BankAccountResponseDTO response = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
 				bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(),
 				bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
@@ -242,11 +283,11 @@ public class BankAccountServiceImpl implements BankAccountService {
 	public List<BankAccountTypeResponseDTO> getBankAccountTypes(int bankAccountFlag) throws Exception {
 		List<BankAccountTypeResponseDTO> response = new ArrayList<BankAccountTypeResponseDTO>();
 		List<BankAccountType> catchTypes = new ArrayList<BankAccountType>();
-		if(bankAccountFlag == 0) {
+		if (bankAccountFlag == 0) {
 			catchTypes = bankAccountTypeRepository.findAllByNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CURRENT_TEXT);
-		}else if(bankAccountFlag == 1){
+		} else if (bankAccountFlag == 1) {
 			catchTypes = bankAccountTypeRepository.findAllByNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_SAVING_TEXT);
-		}else if(bankAccountFlag == 2) {
+		} else if (bankAccountFlag == 2) {
 			catchTypes = bankAccountTypeRepository.findAllByNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CHEQUE_TEXT);
 		}
 		for (BankAccountType bat : catchTypes) {
@@ -262,14 +303,14 @@ public class BankAccountServiceImpl implements BankAccountService {
 	public List<BankRuleResponseDTO> getBankRules(int bankAccountFlag) throws Exception {
 		List<BankRuleResponseDTO> response = new ArrayList<BankRuleResponseDTO>();
 		List<BankRule> catchRules = new ArrayList<BankRule>();
-		if(bankAccountFlag ==0 ) {
+		if (bankAccountFlag == 0) {
 			catchRules = bankRuleRepository.findAllByRuleNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CURRENT_TEXT);
-		}else if(bankAccountFlag == 1){
+		} else if (bankAccountFlag == 1) {
 			catchRules = bankRuleRepository.findAllByRuleNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_SAVING_TEXT);
-		}else if(bankAccountFlag == 2) {
+		} else if (bankAccountFlag == 2) {
 			catchRules = bankRuleRepository.findAllByRuleNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CHEQUE_TEXT);
 		}
-		
+
 		for (BankRule br : catchRules) {
 			BankRuleResponseDTO tmpResObj = new BankRuleResponseDTO();
 			tmpResObj.setIdBankRules(br.getIdBankRules());
@@ -288,6 +329,9 @@ public class BankAccountServiceImpl implements BankAccountService {
 		}
 
 		UserAccount user = userAccountOpt.get();
+		if (user.getValid() != 1) {
+			throw new Exception("User is not valid!");
+		}
 		Optional<BankAccount> bankAccountOpt = bankAccountRepository.findById(request.getIdBankAccount());
 		if (!bankAccountOpt.isPresent()) {
 			throw new Exception("Bank account with provided ID does not exist!");
@@ -345,6 +389,9 @@ public class BankAccountServiceImpl implements BankAccountService {
 			throw new Exception("User account with provided ID does not exist!");
 		}
 		UserAccount user = userAccountOpt.get();
+		if (user.getValid() != 1) {
+			throw new Exception("User is not valid!");
+		}
 		Optional<BankAccount> bankAccountOpt = bankAccountRepository.findById(id);
 		if (!bankAccountOpt.isPresent()) {
 			throw new Exception("Bank account with provided ID does not exist!");
@@ -382,81 +429,83 @@ public class BankAccountServiceImpl implements BankAccountService {
 	}
 
 	@Override
-	public String createCustomRequestForAgent(CreateCustomRequestForAgentDTO request) throws Exception{
+	public String createCustomRequestForAgent(CreateCustomRequestForAgentDTO request) throws Exception {
 		Optional<UserAccount> clientAccountOpt = userAccountRepository.findById(request.getLoggedInUserId());
 		if (!clientAccountOpt.isPresent()) {
 			throw new Exception("User account with provided ID does not exist!");
 		}
 		UserAccount client = clientAccountOpt.get();
-		if(client.getValid()!=1) {
+		if (client.getValid() != 1) {
 			throw new Exception("User is not valid!");
 		}
-		Optional<Request> lastValidatedRequestOpt = requestRepository.findFirstByUserAccountFromAndRequestStatusOrderByIdRequestDesc(client, (byte) 1);
-		if(!lastValidatedRequestOpt.isPresent()) {
+		Optional<Request> lastValidatedRequestOpt = requestRepository
+				.findFirstByUserAccountFromAndRequestStatusOrderByIdRequestDesc(client, (byte) 1);
+		if (!lastValidatedRequestOpt.isPresent()) {
 			throw new Exception("We can not find your agent at the moment, please try again later!");
 		}
 		Request lastValidatedRequest = lastValidatedRequestOpt.get();
-		
+
 		String requestTitle = request.getTitle();
-		if(!RequestTitlesUtil.requestTitlesForClients.contains(requestTitle)) {
+		if (!RequestTitlesUtil.requestTitlesForClients.contains(requestTitle)) {
 			throw new Exception("Request title is not valid!");
 		}
-		
+
 		UserAccount agent = lastValidatedRequest.getUserAccountTo();
-		
+
 		Request newRequest = new Request();
-		
+
 		newRequest.setDescription(request.getDescription());
-		newRequest.setRequestStatus((byte)0);
+		newRequest.setRequestStatus((byte) 0);
 		newRequest.setTime(new Date());
 		newRequest.setTitle(requestTitle);
 		newRequest.setUserAccountFrom(client);
 		newRequest.setUserAccountTo(agent);
 		requestRepository.save(newRequest);
-		
-		return String.format("Agent %s will process your request soon!", agent.getFirstname() + " " + agent.getLastname());
+
+		return String.format("Agent %s will process your request soon!",
+				agent.getFirstname() + " " + agent.getLastname());
 	}
 
 	@Override
 	public SimpleMessageResponseDTO markRequestsAsResolved(RequestsForAgentResolutionDTO request) throws Exception {
-		
+
 		System.out.println("Stigao mi je request za agenta " + request.getLoggedInAgentId());
 
 		Optional<UserAccount> agentOpt = userAccountRepository.findById(request.getLoggedInAgentId());
-		
+
 		if (!agentOpt.isPresent()) {
 			throw new Exception("User account with provided ID does not exist!");
 		}
 		UserAccount agent = agentOpt.get();
-		
-		if(agent.getValid()!=1) {
+
+		if (agent.getValid() != 1) {
 			throw new Exception("User is not valid!");
 		}
-		
+
 		Role roleAgent = roleRepository.findByName(ROLE_AGENT);
-		
+
 		if (roleAgent == null) {
 			throw new Exception("Provided role does not exist!");
 		}
-		
+
 		if (!agent.getRole().equals(roleAgent)) {
 			throw new Exception("User is not an agent!");
 		}
-		
-		for (Integer requestId: request.getRequestsIdList()) {
+
+		for (Integer requestId : request.getRequestsIdList()) {
 			Optional<Request> reqOpt = requestRepository.findById(requestId);
-			if(!reqOpt.isPresent()) {
+			if (!reqOpt.isPresent()) {
 				throw new Exception("Request with request id " + requestId + " does not exist!");
 			}
 			Request req = reqOpt.get();
-			if(!req.getUserAccountTo().equals(agent)) {
+			if (!req.getUserAccountTo().equals(agent)) {
 				throw new Exception("Request with request id " + requestId + " is not assigned to you!");
 			}
-			
+
 			req.setRequestStatus((byte) 1);
 			requestRepository.save(req);
 		}
-		
+
 		return new SimpleMessageResponseDTO("Success");
 	}
 
