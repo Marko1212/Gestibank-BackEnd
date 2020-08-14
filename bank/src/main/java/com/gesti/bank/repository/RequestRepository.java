@@ -18,6 +18,8 @@ public interface RequestRepository extends JpaRepository<Request, Integer>{
 	
 	List<Request> findAllByUserAccountToAndRequestStatusAndTitle(UserAccount agent, byte requestStatus, String title);
 	
+	List<Request> findAllByUserAccountFromAndRequestStatusAndTitle(UserAccount client, byte requestStatus, String title);
+	
 	List<Request> findAllByUserAccountToAndRequestStatusAndTitleNot(UserAccount agent, byte requestStatus, String title);
 	
 	List<Request> findAllByUserAccountFromAndRequestStatus(UserAccount client, byte requestStatus);
@@ -26,5 +28,7 @@ public interface RequestRepository extends JpaRepository<Request, Integer>{
 	
 	@Query("SELECT userAccountTo FROM Request as r where r.userAccountTo.endDate is null and r.userAccountFrom = :userAccountFrom and r.requestStatus = :requestStatus")
 	List<UserAccount> fetchAgentForClient(Pageable pageable, @Param("userAccountFrom") UserAccount client, @Param("requestStatus") byte requestStatus);
+
+	
 	
 }

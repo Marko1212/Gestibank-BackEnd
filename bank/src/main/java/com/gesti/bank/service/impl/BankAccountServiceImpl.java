@@ -1,10 +1,14 @@
 package com.gesti.bank.service.impl;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -113,83 +117,61 @@ public class BankAccountServiceImpl implements BankAccountService {
 			throw new Exception("User with provided credentials is not valid!");
 		}
 		List<BankAccountResponseDTO> response = new ArrayList<BankAccountResponseDTO>();
-		// u slucaju da je logovani juzer agent
+		Map<BankAccount, Boolean> bankAccountForResponse = new HashMap<BankAccount, Boolean>();
+		// u slucaju da je ulogovani juzer agent
 		if (loggedInUser.getRole().getName().equals(ROLE_AGENT)) {
 			// razmatraju se validni rikvestovi za otvaranje tekuceg racuna koje je dobio
 			// ulogovani agent
 			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitle(loggedInUser,
 					(byte) 1, RequestTitlesUtil.CREATE_ACCOUNT);
-			for (Request r : requests) {
-				UserAccount client = r.getUserAccountFrom();
-				// proveriti da li validni klijenti tog agenta imaju stedni racun.
-				if (client.getValid() == (byte) 1) {
-					boolean clientSavingAccountFlag = false;
-					for (BankAccount bankAcc : client.getBankAccounts()) {
-						// ako je racun odredjenog klijenta validan i tipa "saving" staviti
-						// clientSavingAccountFlag na true i preci na pravljenje DTO response
-						// objekta/objekata za tog klijenta
-						if (bankAcc.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
-								&& bankAcc.getBankAccountStatus() == (byte) 1) {
-							clientSavingAccountFlag = true;
-							break;
-						}
-					}
-					for (BankAccount bankAcc : client.getBankAccounts()) {
-						// uzeti u obzir samo validne racune tog klijenta, bilo kog tipa bili. Ukoliko
-						// klijent ima validni stedni racun, clientSavingAccountFlag ima vrednost true
-						// za sve njegove racune (i current i saving). Ukoliko ne,
-						// clientSavingAccountFlag ima vrednost false.
-						if (bankAcc.getBankAccountStatus() == (byte) 1) {
-							BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
-									bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(),
-									bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
-									bankAcc.getUserAccount().getFirstname() + " "
-											+ bankAcc.getUserAccount().getLastname(),
-									bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
-									bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate(),
-									clientSavingAccountFlag);
-							response.add(tmpObj);
-						}
-					}
-				}
-			} // ovde se prelazi na razmatranje sledeceg request-a
+			for (UserAccount client : requests.stream().map(req -> req.getUserAccountFrom())
+					.filter(client -> client.getValid() == (byte) 1).collect(Collectors.toList())) {
+				boolean clientSavingAccountFlag = client.getBankAccounts().stream().anyMatch(
+						bankAcc -> bankAcc.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
+								&& bankAcc.getBankAccountStatus() == (byte) 1);
+
+				client.getBankAccounts().stream().filter(bankAcc -> bankAcc.getBankAccountStatus() == (byte) 1)
+						.forEach(bankAcc -> {
+							bankAccountForResponse.put(bankAcc, clientSavingAccountFlag);
+						});
+			}
 		}
 		// u slucaju da je logovani juzer klijent (iznad je vec provereno da li je juzer
 		// validan)
 		else if (loggedInUser.getRole().getName().equals(ROLE_CLIENT)) {
-			boolean clientSavingAccountFlag = false;
-			// proveravaju se svi validni racuni tog klijenta, bilo kog tipa. Ukoliko se
-			// nadje validni stedni racun, flag se stavlja na true i prelazi se na stvaranje
-			// DTO
-			// response objekta/objekata
-			for (BankAccount bankAcc : loggedInUser.getBankAccounts()) {
-				if (bankAcc.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
-						&& bankAcc.getBankAccountStatus() == (byte) 1) {
-					clientSavingAccountFlag = true;
-					break;
-				}
-			}
-			for (BankAccount bankAcc : loggedInUser.getBankAccounts()) {
-				if (bankAcc.getBankAccountStatus() == (byte) 1) {
-					// u koliko taj ulogovani klijent ima validni stedni racun,
-					// clientSavingAccountFlag ima vrednost true, za sve njegove validne racune
-					// (bilo kog tipa bili)
-					BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
-							bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(),
-							bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
-							bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
-							bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
-							bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate(), clientSavingAccountFlag);
-					response.add(tmpObj);
-				}
-			}
+			boolean clientSavingAccountFlag = loggedInUser.getBankAccounts().stream()
+					.anyMatch(bankAcc -> bankAcc.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
+							&& bankAcc.getBankAccountStatus() == (byte) 1);
+			loggedInUser.getBankAccounts().stream().filter(bankAcc -> bankAcc.getBankAccountStatus() == (byte) 1)
+					.forEach(bankAcc -> {
+						bankAccountForResponse.put(bankAcc, clientSavingAccountFlag);
+					});
+			;
 		} else {
 			throw new Exception("You don't have a permission for this action!");
 		}
+
+		for (Map.Entry<BankAccount, Boolean> bankAccEntry : bankAccountForResponse.entrySet()) {
+			BankAccount bankAcc = bankAccEntry.getKey();
+			Boolean clientSavingAccountFlag = bankAccEntry.getValue();
+			BankAccountResponseDTO tmpObj = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
+					bankAcc.getBankAccountNumber(), bankAcc.getBankAccountType().getIdBankAccountType(),
+					bankAcc.getBankAccountType().getName(), bankAcc.getUserAccount().getIdUserAccount(),
+					bankAcc.getUserAccount().getFirstname() + " " + bankAcc.getUserAccount().getLastname(),
+					bankAcc.getBankRule().getIdBankRules(), bankAcc.getBankRule().getPercent(),
+					bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate(), clientSavingAccountFlag);
+			response.add(tmpObj);
+		}
+		
 		if (response.isEmpty()) {
 			throw new Exception("There is no bank account!");
 		}
-		return response;
+		
+		
+		
+		return response.stream()
+				  .sorted(Comparator.comparing(BankAccountResponseDTO::getUserAccountFullName))
+				  .collect(Collectors.toList());
 	}
 
 	@Override
@@ -238,17 +220,20 @@ public class BankAccountServiceImpl implements BankAccountService {
 				throw new Exception("That is not your client!");
 			}
 			// ukoliko agent ima pravo dostupa tom racunu
-			UserAccount client = bankAcc.getUserAccount(); // iznad je vec provereno da je taj klijent validan
-			for (BankAccount bankAccount : client.getBankAccounts()) {
-				// prolazi se kroz sve validne racune, bilo kog tipa, tog klijenta i ukoliko se
-				// pronadje validan stedni racun, flag se stavlja na
-				// true, inace ostaje false
-				if (bankAccount.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
-						&& bankAccount.getBankAccountStatus() == (byte) 1) {
-					clientSavingAccountFlag = true;
-					break;
-				}
-			}
+			clientSavingAccountFlag = bankAcc.getUserAccount().getBankAccounts().stream().anyMatch(
+					bankAccount -> bankAccount.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
+							&& bankAccount.getBankAccountStatus() == (byte) 1);
+//			UserAccount client = bankAcc.getUserAccount(); // iznad je vec provereno da je taj klijent validan
+//			for (BankAccount bankAccount : client.getBankAccounts()) {
+//				// prolazi se kroz sve validne racune, bilo kog tipa, tog klijenta i ukoliko se
+//				// pronadje validan stedni racun, flag se stavlja na
+//				// true, inace ostaje false
+//				if (bankAccount.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
+//						&& bankAccount.getBankAccountStatus() == (byte) 1) {
+//					clientSavingAccountFlag = true;
+//					break;
+//				}
+//			}
 
 		} // u slucaju da je ulogovani juzer klijent
 		else if (user.getRole().getName().equals(ROLE_CLIENT))
@@ -258,16 +243,19 @@ public class BankAccountServiceImpl implements BankAccountService {
 				throw new Exception("That is not your account!");
 			}
 
-			for (BankAccount bankAccount : user.getBankAccounts()) {
-				// prolazi se kroz sve validne racune, bilo kog tipa, tog klijenta i ukoliko se
-				// pronadje validan stedni racun, flag se stavlja na
-				// true, inace ostaje false
-				if (bankAccount.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
-						&& bankAccount.getBankAccountStatus() == (byte) 1) {
-					clientSavingAccountFlag = true;
-					break;
-				}
-			}
+			clientSavingAccountFlag = user.getBankAccounts().stream().anyMatch(
+					bankAccount -> bankAccount.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
+							&& bankAccount.getBankAccountStatus() == (byte) 1);
+//			for (BankAccount bankAccount : user.getBankAccounts()) {
+//				// prolazi se kroz sve validne racune, bilo kog tipa, tog klijenta i ukoliko se
+//				// pronadje validan stedni racun, flag se stavlja na
+//				// true, inace ostaje false
+//				if (bankAccount.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
+//						&& bankAccount.getBankAccountStatus() == (byte) 1) {
+//					clientSavingAccountFlag = true;
+//					break;
+//				}
+//			}
 		}
 // ovde se napravi DTO Response objekat
 		BankAccountResponseDTO response = new BankAccountResponseDTO(bankAcc.getIdBankAccount(),
