@@ -653,7 +653,8 @@ public class BankAccountServiceImpl implements BankAccountService {
 		bankAccount.setCreationDate(new Date());
 		bankAccountRepository.save(bankAccount);
 
-		return new SimpleMessageResponseDTO("Success");
+		emailService.sendSavingAccountCreationEmail(client.getFirstname(), client.getEmail());
+		return new SimpleMessageResponseDTO("Le compte d'épargne pour le client " + client.getFirstname() + " " + client.getLastname() + " a bien été créé!");
 	}
 
 }

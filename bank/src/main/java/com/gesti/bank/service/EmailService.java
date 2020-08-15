@@ -10,4 +10,6 @@ public interface EmailService {
 	
 	void sendChequeBookCreationConfirmationEmail(String name, String bankAccountTypeName, String bankAccountNumber, String emailTo);
 
+	void sendSavingAccountCreationEmail(String firstname, String emailTo);
+
 }

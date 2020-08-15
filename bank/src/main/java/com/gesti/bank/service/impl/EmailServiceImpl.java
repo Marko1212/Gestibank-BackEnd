@@ -143,7 +143,38 @@ public class EmailServiceImpl implements EmailService {
 	public String getContentFromTemplateChequier(VelocityContext model) {
 		StringWriter content = new StringWriter();
 		try {
-			velocityEngine.mergeTemplate("/templates/chequier.vm", "UTF-8", model, content);
+			velocityEngine.mergeTemplate("/templates/saving.vm", "UTF-8", model, content);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return content.toString();
+	}
+
+	@Override
+	public void sendSavingAccountCreationEmail(String firstname, String emailTo) {
+		VelocityContext context = new VelocityContext();
+		context.put("firstname", firstname);
+
+		MimeMessage mimeMessage = mailSender.createMimeMessage();
+		try {
+			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+			mimeMessageHelper.setSubject("Your saving account has been created!");
+			mimeMessageHelper.setFrom("gestibank1212@gmail.com");
+			mimeMessageHelper.setTo(emailTo);
+			mimeMessageHelper.setText(getContentFromTemplateSaving(context), true);
+			new Thread(() -> {
+				mailSender.send(mimeMessageHelper.getMimeMessage());
+			}).start();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public String getContentFromTemplateSaving(VelocityContext model) {
+		StringWriter content = new StringWriter();
+		try {
+			velocityEngine.mergeTemplate("/templates/saving.vm", "UTF-8", model, content);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
