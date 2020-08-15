@@ -17,6 +17,7 @@ import com.gesti.bank.dto.BankAccountResponseDTO;
 import com.gesti.bank.dto.BankAccountTypeResponseDTO;
 import com.gesti.bank.dto.BankRuleResponseDTO;
 import com.gesti.bank.dto.CreateCustomRequestForAgentDTO;
+import com.gesti.bank.dto.CreateSavingAccountRequestDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.dto.ModifyBankAccountRequestDTO;
 import com.gesti.bank.dto.RequestsForAgentResolutionDTO;
@@ -42,6 +43,9 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 	private final static int INITIAL_BANK_ACCOUNT_TYPE_ID = 1;
 	private final static int INITIAL_RULE_ID = 1;
+
+	private final static int SAVING_BANK_ACCOUNT_TYPE_ID = 9;
+	private final static int SAVING_RULE_ID = 8;
 
 	private final static String ROLE_ADMIN = "admin";
 	private final static String ROLE_CLIENT = "client";
@@ -550,13 +554,106 @@ public class BankAccountServiceImpl implements BankAccountService {
 		} else {
 			throw new Exception("You do not have a permission!");
 		}
-		
-		emailService.sendChequeBookCreationConfirmationEmail(bankAcc.getUserAccount().getFirstname(), bankAcc.getBankAccountType().getName(), bankAcc.getBankAccountNumber(), bankAcc.getUserAccount().getEmail());
+
+		emailService.sendChequeBookCreationConfirmationEmail(bankAcc.getUserAccount().getFirstname(),
+				bankAcc.getBankAccountType().getName(), bankAcc.getBankAccountNumber(),
+				bankAcc.getUserAccount().getEmail());
 
 		return "La commande de chéquier pour le client : " + bankAcc.getUserAccount().getFirstname() + " "
-				+ bankAcc.getUserAccount().getLastname() + ", pour le compte de numéro : " + bankAcc.getBankAccountNumber()
-				+  ", de type : " + bankAcc.getBankAccountType().getName()
+				+ bankAcc.getUserAccount().getLastname() + ", pour le compte de numéro : "
+				+ bankAcc.getBankAccountNumber() + ", de type : " + bankAcc.getBankAccountType().getName()
 				+ ", a bien été effectuée!";
+	}
+
+	@Override
+	public SimpleMessageResponseDTO createSavingAccountForClient(CreateSavingAccountRequestDTO request)
+			throws Exception {
+
+		Optional<UserAccount> agentOpt = userAccountRepository.findById(request.getLoggedInAgentId());
+
+		if (!agentOpt.isPresent()) {
+			throw new Exception("User account with provided ID does not exist!");
+		}
+		UserAccount agent = agentOpt.get();
+
+		if (agent.getValid() != 1) {
+			throw new Exception("User is not valid!");
+		}
+
+		Role roleAgent = roleRepository.findByName(ROLE_AGENT);
+
+		if (roleAgent == null) {
+			throw new Exception("Provided role does not exist!");
+		}
+
+		if (!agent.getRole().equals(roleAgent)) {
+			throw new Exception("User is not an agent!");
+		}
+
+		Optional<UserAccount> clientOpt = userAccountRepository.findById(request.getClientId());
+
+		if (!clientOpt.isPresent()) {
+			throw new Exception("User account with provided ID does not exist!");
+		}
+
+		UserAccount client = clientOpt.get();
+
+		if (client.getValid() != 1) {
+			throw new Exception("User is not valid!");
+		}
+
+		Role roleClient = roleRepository.findByName(ROLE_CLIENT);
+
+		if (roleClient == null) {
+			throw new Exception("Provided role does not exist!");
+		}
+
+		if (!client.getRole().equals(roleClient)) {
+			throw new Exception("User is not a client!");
+		}
+
+		boolean havePermission = false;
+		List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitle(agent, (byte) 1,
+				RequestTitlesUtil.CREATE_ACCOUNT);
+		for (Request r : requests) {
+			UserAccount customer = r.getUserAccountFrom();
+			if (customer.equals(client)) {
+				havePermission = true;
+				break;
+			}
+
+		}
+		if (!havePermission) {
+			throw new Exception("That is not your client!");
+		}
+
+		// proveriti da li vec postoji validni stedni racun za tog klijenta
+
+		if (client.getBankAccounts().stream()
+				.anyMatch(bankAcc -> bankAcc.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
+						&& bankAcc.getBankAccountStatus() == (byte) 1))
+			throw new Exception("Client has already a valid saving account!");
+
+		BankAccount bankAccount = new BankAccount();
+		bankAccount.setBankAccountNumber(generateBankAccountNumber());
+		Optional<BankAccountType> savingTypeOpt = bankAccountTypeRepository.findById(SAVING_BANK_ACCOUNT_TYPE_ID);
+		if (!savingTypeOpt.isPresent()) {
+			throw new Exception("Bank account type with provided id does not exist!");
+		}
+		BankAccountType savingType = savingTypeOpt.get();
+		bankAccount.setBankAccountStatus((byte) 1);
+		bankAccount.setBankAccountType(savingType);
+		bankAccount.setUserAccount(client);
+		Optional<BankRule> savingBankRuleOpt = bankRuleRepository.findById(SAVING_RULE_ID);
+		if (!savingBankRuleOpt.isPresent()) {
+			throw new Exception("Bank rule with provided id does not exist!");
+		}
+		BankRule savingBankRule = savingBankRuleOpt.get();
+		bankAccount.setBankRule(savingBankRule);
+		bankAccount.setCreationDate(new Date());
+		bankAccountRepository.save(bankAccount);
+
+		return new SimpleMessageResponseDTO("Success");
 	}
 
 }

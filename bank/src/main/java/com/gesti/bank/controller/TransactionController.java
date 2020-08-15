@@ -73,7 +73,7 @@ public class TransactionController {
 		try {
 			response = transactionService.getBalanceForBankAccountId(bankAccountId);
 			//JSONObject jsonObject = new JSONObject();
-			//onObject.put("balance", response);
+			//jsonObject.put("balance", response);
 			return new ResponseEntity<String> (response, HttpStatus.OK);
 		} catch(Exception e) {
 			e.printStackTrace();

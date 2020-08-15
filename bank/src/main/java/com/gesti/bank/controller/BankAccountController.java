@@ -23,6 +23,7 @@ import com.gesti.bank.dto.BankAccountResponseDTO;
 import com.gesti.bank.dto.BankAccountTypeResponseDTO;
 import com.gesti.bank.dto.BankRuleResponseDTO;
 import com.gesti.bank.dto.CreateCustomRequestForAgentDTO;
+import com.gesti.bank.dto.CreateSavingAccountRequestDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.dto.ModifyBankAccountRequestDTO;
 import com.gesti.bank.dto.SimpleMessageResponseDTO;
@@ -82,6 +83,17 @@ public class BankAccountController {
 		} catch (Exception e) {
 			response = e.getMessage();
 			return new ResponseEntity<String>(response, HttpStatus.BAD_REQUEST);
+		}
+	}
+	
+	@PostMapping("/createSavingAccountForClient")
+	public ResponseEntity<?> createSavingAccountForClient(@RequestBody CreateSavingAccountRequestDTO request) {
+		SimpleMessageResponseDTO response = null;
+		try {
+			response = bankAccountService.createSavingAccountForClient(request);
+			return new ResponseEntity<SimpleMessageResponseDTO>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}
 	

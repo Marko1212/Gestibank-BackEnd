@@ -6,6 +6,7 @@ import com.gesti.bank.dto.BankAccountResponseDTO;
 import com.gesti.bank.dto.BankAccountTypeResponseDTO;
 import com.gesti.bank.dto.BankRuleResponseDTO;
 import com.gesti.bank.dto.CreateCustomRequestForAgentDTO;
+import com.gesti.bank.dto.CreateSavingAccountRequestDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.dto.ModifyBankAccountRequestDTO;
 import com.gesti.bank.dto.RequestsForAgentResolutionDTO;
@@ -33,6 +34,8 @@ public interface BankAccountService {
 	SimpleMessageResponseDTO markRequestsAsResolved(RequestsForAgentResolutionDTO request) throws Exception;
 
 	String createChequeBookForBankAccount(int id, int userID) throws Exception;
+
+	SimpleMessageResponseDTO createSavingAccountForClient(CreateSavingAccountRequestDTO request) throws Exception;
 
 
 
