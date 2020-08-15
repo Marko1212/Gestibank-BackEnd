@@ -127,7 +127,7 @@ public class EmailServiceImpl implements EmailService {
 		MimeMessage mimeMessage = mailSender.createMimeMessage();
 		try {
 			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
-			mimeMessageHelper.setSubject("Your request for Cheque Book has been accepted!");
+			mimeMessageHelper.setSubject("Your new Cheque Book creation!");
 			mimeMessageHelper.setFrom("gestibank1212@gmail.com");
 			mimeMessageHelper.setTo(emailTo);
 			mimeMessageHelper.setText(getContentFromTemplateChequier(context), true);

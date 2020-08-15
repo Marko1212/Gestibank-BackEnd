@@ -348,7 +348,7 @@ ul.social li{
             		<td>
             			<div class="text" style="padding: 0 2.5em; text-align: center;">
             				<h3>Dear ${name}!</h3>
-            				<h3>Your request for cheque book creation for your bank account of type : ${bankAccountTypeName}, number : ${bankAccountNumber}, has been approved!</h3>
+            				<h3>Creation of cheque book for your bank account, number : ${bankAccountNumber}, type : ${bankAccountTypeName}, has been approved!</h3>
             				<h3>Your new cheque book will be sent to your home address soon, by post !</h3>
             			</div>
             		</td>

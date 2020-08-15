@@ -528,8 +528,8 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 		if (user.getRole().equals(roleAgent)) {
 			boolean havePermission = false;
-			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitle(user, (byte) 0,
-					RequestTitlesUtil.CREATE_CHEQUE_BOOK);
+			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitle(user, (byte) 1,
+					RequestTitlesUtil.CREATE_ACCOUNT);
 			for (Request r : requests) {
 				if (havePermission) {
 					break;
@@ -553,10 +553,10 @@ public class BankAccountServiceImpl implements BankAccountService {
 		
 		emailService.sendChequeBookCreationConfirmationEmail(bankAcc.getUserAccount().getFirstname(), bankAcc.getBankAccountType().getName(), bankAcc.getBankAccountNumber(), bankAcc.getUserAccount().getEmail());
 
-		return "La commande de chéquier de la part du client : " + bankAcc.getUserAccount().getFirstname() + " "
-				+ bankAcc.getUserAccount().getLastname() + ", pour le compte du type : "
-				+ bankAcc.getBankAccountType().getName() + ", numéro : " + bankAcc.getBankAccountNumber()
-				+ ", a bien été prise en compte!";
+		return "La commande de chéquier pour le client : " + bankAcc.getUserAccount().getFirstname() + " "
+				+ bankAcc.getUserAccount().getLastname() + ", pour le compte de numéro : " + bankAcc.getBankAccountNumber()
+				+  ", de type : " + bankAcc.getBankAccountType().getName()
+				+ ", a bien été effectuée!";
 	}
 
 }
