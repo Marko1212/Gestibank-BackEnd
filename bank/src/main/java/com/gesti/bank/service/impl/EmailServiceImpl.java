@@ -15,11 +15,11 @@ import org.springframework.stereotype.Service;
 import com.gesti.bank.service.EmailService;
 
 @Service
-public class EmailServiceImpl implements EmailService{
-	
+public class EmailServiceImpl implements EmailService {
+
 	@Autowired
 	JavaMailSender mailSender;
-	
+
 	@Autowired
 	VelocityEngine velocityEngine;
 
@@ -37,29 +37,29 @@ public class EmailServiceImpl implements EmailService{
 			mimeMessageHelper.setFrom("gestibank1212@gmail.com");
 			mimeMessageHelper.setTo(emailTo);
 			mimeMessageHelper.setText(getContentFromTemplateVerification(context), true);
-			new Thread(() ->  {
+			new Thread(() -> {
 				mailSender.send(mimeMessageHelper.getMimeMessage());
 			}).start();
-		}catch (MessagingException e) {
+		} catch (MessagingException e) {
 			e.printStackTrace();
 		}
 	}
-	
+
 	public String getContentFromTemplateVerification(VelocityContext model) {
 		StringWriter content = new StringWriter();
 		try {
 			velocityEngine.mergeTemplate("/templates/verification.vm", "UTF-8", model, content);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return content.toString();
 	}
-	
+
 	public String getContentFromTemplateReceipt(VelocityContext model) {
 		StringWriter content = new StringWriter();
 		try {
 			velocityEngine.mergeTemplate("/templates/receipt.vm", "UTF-8", model, content);
-		}catch (Exception e) {
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return content.toString();
@@ -77,13 +77,13 @@ public class EmailServiceImpl implements EmailService{
 			mimeMessageHelper.setFrom("gestibank1212@gmail.com");
 			mimeMessageHelper.setTo(emailTo);
 			mimeMessageHelper.setText(getContentFromTemplateReceipt(context), true);
-			new Thread(() ->  {
+			new Thread(() -> {
 				mailSender.send(mimeMessageHelper.getMimeMessage());
 			}).start();
-		}catch (MessagingException e) {
+		} catch (MessagingException e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	@Override
@@ -98,6 +98,39 @@ public class EmailServiceImpl implements EmailService{
 			mimeMessageHelper.setFrom("gestibank1212@gmail.com");
 			mimeMessageHelper.setTo(emailTo);
 			mimeMessageHelper.setText(getContentFromTemplateRejection(context), true);
+			new Thread(() -> {
+				mailSender.send(mimeMessageHelper.getMimeMessage());
+			}).start();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+
+	}
+
+	public String getContentFromTemplateRejection(VelocityContext model) {
+		StringWriter content = new StringWriter();
+		try {
+			velocityEngine.mergeTemplate("/templates/rejection.vm", "UTF-8", model, content);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return content.toString();
+	}
+
+	@Override
+	public void sendChequeBookCreationConfirmationEmail(String name, String bankAccountTypeName, String bankAccountNumber, String emailTo) {
+		VelocityContext context = new VelocityContext();
+		context.put("name", name);
+	 context.put("bankAccountTypeName", bankAccountTypeName);
+	 context.put("bankAccountNumber", bankAccountNumber);
+
+		MimeMessage mimeMessage = mailSender.createMimeMessage();
+		try {
+			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+			mimeMessageHelper.setSubject("Your request for Cheque Book has been accepted!");
+			mimeMessageHelper.setFrom("gestibank1212@gmail.com");
+			mimeMessageHelper.setTo(emailTo);
+			mimeMessageHelper.setText(getContentFromTemplateChequier(context), true);
 			new Thread(() ->  {
 				mailSender.send(mimeMessageHelper.getMimeMessage());
 			}).start();
@@ -106,12 +139,12 @@ public class EmailServiceImpl implements EmailService{
 		}
 		
 	}
-	
-	public String getContentFromTemplateRejection(VelocityContext model) {
+
+	public String getContentFromTemplateChequier(VelocityContext model) {
 		StringWriter content = new StringWriter();
 		try {
-			velocityEngine.mergeTemplate("/templates/rejection.vm", "UTF-8", model, content);
-		}catch (Exception e) {
+			velocityEngine.mergeTemplate("/templates/chequier.vm", "UTF-8", model, content);
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return content.toString();

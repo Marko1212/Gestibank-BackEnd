@@ -34,6 +34,7 @@ import com.gesti.bank.repository.RequestRepository;
 import com.gesti.bank.repository.RoleRepository;
 import com.gesti.bank.repository.UserAccountRepository;
 import com.gesti.bank.service.BankAccountService;
+import com.gesti.bank.service.EmailService;
 import com.gesti.bank.util.RequestTitlesUtil;
 
 @Service
@@ -67,6 +68,9 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 	@Autowired
 	RoleRepository roleRepository;
+
+	@Autowired
+	EmailService emailService;
 
 	@Override
 	public void createInitialBankAccount(UserAccount client) throws Exception {
@@ -136,7 +140,8 @@ public class BankAccountServiceImpl implements BankAccountService {
 						});
 			}
 		}
-		// u slucaju da je logovani juzer klijent (iznad je vec provereno da li je juzer
+		// u slucaju da je ulogovani juzer klijent (iznad je vec provereno da li je
+		// juzer
 		// validan)
 		else if (loggedInUser.getRole().getName().equals(ROLE_CLIENT)) {
 			boolean clientSavingAccountFlag = loggedInUser.getBankAccounts().stream()
@@ -162,16 +167,13 @@ public class BankAccountServiceImpl implements BankAccountService {
 					bankAcc.getBankRule().getRuleName(), bankAcc.getCreationDate(), clientSavingAccountFlag);
 			response.add(tmpObj);
 		}
-		
+
 		if (response.isEmpty()) {
 			throw new Exception("There is no bank account!");
 		}
-		
-		
-		
-		return response.stream()
-				  .sorted(Comparator.comparing(BankAccountResponseDTO::getUserAccountFullName))
-				  .collect(Collectors.toList());
+
+		return response.stream().sorted(Comparator.comparing(BankAccountResponseDTO::getUserAccountFullName))
+				.collect(Collectors.toList());
 	}
 
 	@Override
@@ -336,10 +338,12 @@ public class BankAccountServiceImpl implements BankAccountService {
 					break;
 				}
 				UserAccount client = r.getUserAccountFrom();
-				for (BankAccount tmpBankAcc : client.getBankAccounts()) {
-					if (tmpBankAcc.getIdBankAccount() == bankAcc.getIdBankAccount()) {
-						havePermission = true;
-						break;
+				if (client.getValid() == 1) {
+					for (BankAccount tmpBankAcc : client.getBankAccounts()) {
+						if (tmpBankAcc.getIdBankAccount() == bankAcc.getIdBankAccount()) {
+							havePermission = true;
+							break;
+						}
 					}
 				}
 			}
@@ -495,6 +499,64 @@ public class BankAccountServiceImpl implements BankAccountService {
 		}
 
 		return new SimpleMessageResponseDTO("Success");
+	}
+
+	@Override
+	public String createChequeBookForBankAccount(int id, int userID) throws Exception {
+		Optional<UserAccount> userAccountOpt = userAccountRepository.findById(userID);
+		if (!userAccountOpt.isPresent()) {
+			throw new Exception("User account with provided ID does not exist!");
+		}
+		UserAccount user = userAccountOpt.get();
+		if (user.getValid() != 1) {
+			throw new Exception("User is not valid!");
+		}
+		Optional<BankAccount> bankAccountOpt = bankAccountRepository.findById(id);
+		if (!bankAccountOpt.isPresent()) {
+			throw new Exception("Bank account with provided ID does not exist!");
+		}
+		BankAccount bankAcc = bankAccountOpt.get();
+		if (bankAcc.getBankAccountStatus() == (byte) 0) {
+			throw new Exception("Bank account with provided ID is not active!");
+		}
+
+		Role roleAgent = roleRepository.findByName(ROLE_AGENT);
+
+		if (roleAgent == null) {
+			throw new Exception("Provided role does not exist!");
+		}
+
+		if (user.getRole().equals(roleAgent)) {
+			boolean havePermission = false;
+			List<Request> requests = requestRepository.findAllByUserAccountToAndRequestStatusAndTitle(user, (byte) 0,
+					RequestTitlesUtil.CREATE_CHEQUE_BOOK);
+			for (Request r : requests) {
+				if (havePermission) {
+					break;
+				}
+				UserAccount client = r.getUserAccountFrom();
+				if (client.getValid() == 1) {
+					for (BankAccount tmpBankAcc : client.getBankAccounts()) {
+						if (tmpBankAcc.getIdBankAccount() == bankAcc.getIdBankAccount()) {
+							havePermission = true;
+							break;
+						}
+					}
+				}
+			}
+			if (!havePermission) {
+				throw new Exception("That is not your client!");
+			}
+		} else {
+			throw new Exception("You do not have a permission!");
+		}
+		
+		emailService.sendChequeBookCreationConfirmationEmail(bankAcc.getUserAccount().getFirstname(), bankAcc.getBankAccountType().getName(), bankAcc.getBankAccountNumber(), bankAcc.getUserAccount().getEmail());
+
+		return "La commande de chéquier de la part du client : " + bankAcc.getUserAccount().getFirstname() + " "
+				+ bankAcc.getUserAccount().getLastname() + ", pour le compte du type : "
+				+ bankAcc.getBankAccountType().getName() + ", numéro : " + bankAcc.getBankAccountNumber()
+				+ ", a bien été prise en compte!";
 	}
 
 }

@@ -7,4 +7,7 @@ public interface EmailService {
 	void sendConfirmationOfReceiptOfRequestEmail(String name, String emailTo);
 
 	void sendRejectionEmail(String name, String email);
+	
+	void sendChequeBookCreationConfirmationEmail(String name, String bankAccountTypeName, String bankAccountNumber, String emailTo);
+
 }

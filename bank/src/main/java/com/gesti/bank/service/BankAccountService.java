@@ -32,6 +32,8 @@ public interface BankAccountService {
 
 	SimpleMessageResponseDTO markRequestsAsResolved(RequestsForAgentResolutionDTO request) throws Exception;
 
+	String createChequeBookForBankAccount(int id, int userID) throws Exception;
+
 
 
 }

@@ -73,6 +73,18 @@ public class BankAccountController {
 		}
 	}
 	
+	@GetMapping("/createChequeBookForBankAccount/{id}/{userID}")
+	public ResponseEntity<?> createChequeBookForBankAccount(@PathVariable int id, @PathVariable int userID) {
+		String response = null;
+		try {
+			response = bankAccountService.createChequeBookForBankAccount(id, userID);
+			return new ResponseEntity<SimpleMessageResponseDTO>(new SimpleMessageResponseDTO(response), HttpStatus.OK);
+		} catch (Exception e) {
+			response = e.getMessage();
+			return new ResponseEntity<String>(response, HttpStatus.BAD_REQUEST);
+		}
+	}
+	
 	/*
 	 * @Param - bankAccountFlag - 0 (current), 1 (saving), 2 (cheque)
 	 */
