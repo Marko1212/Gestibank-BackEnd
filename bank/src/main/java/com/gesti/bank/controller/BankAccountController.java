@@ -98,7 +98,7 @@ public class BankAccountController {
 	}
 	
 	/*
-	 * @Param - bankAccountFlag - 0 (current), 1 (saving), 2 (cheque)
+	 * @Param - bankAccountFlag - 0 (current), 1 (saving)
 	 */
 	@GetMapping("/getBankAccountTypes")
 	public ResponseEntity<?> getBankAccountTypes(@RequestParam(value="bankAccountFlag", defaultValue = "0") String bankAccountFlag) {
@@ -113,7 +113,7 @@ public class BankAccountController {
 	}
 	
 	/*
-	 * @Param - bankAccountFlag - 0 (current), 1 (saving), 2 (cheque)
+	 * @Param - bankAccountFlag - 0 (current), 1 (saving)
 	 */
 	@GetMapping("/getBankRules")
 	public ResponseEntity<?> getBankRules(@RequestParam(value="bankAccountFlag", defaultValue = "0") String bankAccountFlag) {
