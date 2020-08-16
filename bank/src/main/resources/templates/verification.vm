@@ -343,7 +343,7 @@ ul.social li{
 	      </tr><!-- end tr -->
 				<tr>
           <td valign="middle" class="hero bg_white" style="padding: 2em 0 4em 0;">
-            <table>
+          <!--  <table> -->
             	<tr>
             		<td>
             			<div class="text" style="padding: 0 2.5em; text-align: center;">
@@ -353,7 +353,7 @@ ul.social li{
             			</div>
             		</td>
             	</tr>
-            </table>
+           <!-- </table> -->
           </td>
 	      </tr><!-- end tr -->
       <!-- 1 Column Text + Button : END -->

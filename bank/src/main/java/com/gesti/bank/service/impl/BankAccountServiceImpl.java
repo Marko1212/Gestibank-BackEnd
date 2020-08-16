@@ -53,7 +53,6 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 	private final static String RULE_TYPE_CONTAINING_CURRENT_TEXT = "Current";
 	private final static String RULE_TYPE_CONTAINING_SAVING_TEXT = "Saving";
-	private final static String RULE_TYPE_CONTAINING_CHEQUE_TEXT = "Cheque";
 
 	@Autowired
 	BankAccountRepository bankAccountRepository;
@@ -281,8 +280,6 @@ public class BankAccountServiceImpl implements BankAccountService {
 			catchTypes = bankAccountTypeRepository.findAllByNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CURRENT_TEXT);
 		} else if (bankAccountFlag == 1) {
 			catchTypes = bankAccountTypeRepository.findAllByNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_SAVING_TEXT);
-		} else if (bankAccountFlag == 2) {
-			catchTypes = bankAccountTypeRepository.findAllByNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CHEQUE_TEXT);
 		}
 		for (BankAccountType bat : catchTypes) {
 			BankAccountTypeResponseDTO tmpResObj = new BankAccountTypeResponseDTO();
@@ -301,8 +298,6 @@ public class BankAccountServiceImpl implements BankAccountService {
 			catchRules = bankRuleRepository.findAllByRuleNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CURRENT_TEXT);
 		} else if (bankAccountFlag == 1) {
 			catchRules = bankRuleRepository.findAllByRuleNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_SAVING_TEXT);
-		} else if (bankAccountFlag == 2) {
-			catchRules = bankRuleRepository.findAllByRuleNameIgnoreCaseContaining(RULE_TYPE_CONTAINING_CHEQUE_TEXT);
 		}
 
 		for (BankRule br : catchRules) {
@@ -631,8 +626,9 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 		if (client.getBankAccounts().stream()
 				.anyMatch(bankAcc -> bankAcc.getBankAccountType().getName().equals(RULE_TYPE_CONTAINING_SAVING_TEXT)
-						&& bankAcc.getBankAccountStatus() == (byte) 1))
+						&& bankAcc.getBankAccountStatus() == (byte) 1)) {
 			throw new Exception("Client has already a valid saving account!");
+		}
 
 		BankAccount bankAccount = new BankAccount();
 		bankAccount.setBankAccountNumber(generateBankAccountNumber());

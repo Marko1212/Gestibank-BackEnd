@@ -143,7 +143,7 @@ public class EmailServiceImpl implements EmailService {
 	public String getContentFromTemplateChequier(VelocityContext model) {
 		StringWriter content = new StringWriter();
 		try {
-			velocityEngine.mergeTemplate("/templates/saving.vm", "UTF-8", model, content);
+			velocityEngine.mergeTemplate("/templates/chequier.vm", "UTF-8", model, content);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

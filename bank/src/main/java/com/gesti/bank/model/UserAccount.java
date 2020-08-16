@@ -47,6 +47,8 @@ public class UserAccount implements Serializable {
 
 	private String username;
 
+	private String token;
+	
 	private byte valid;
 
 	//bi-directional many-to-one association to BankAccount
@@ -176,6 +178,14 @@ public class UserAccount implements Serializable {
 		this.valid = valid;
 	}
 
+	public String getToken() {
+		return token;
+	}
+
+	public void setToken(String token) {
+		this.token = token;
+	}
+
 	public List<BankAccount> getBankAccounts() {
 		return this.bankAccounts;
 	}
@@ -212,6 +222,8 @@ public class UserAccount implements Serializable {
 
 		return document;
 	}
+	
+	
 
 	public Document removeDocument(Document document) {
 		getDocuments().remove(document);
