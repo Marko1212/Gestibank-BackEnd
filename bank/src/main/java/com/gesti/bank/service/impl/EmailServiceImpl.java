@@ -180,5 +180,38 @@ public class EmailServiceImpl implements EmailService {
 		}
 		return content.toString();
 	}
+	
+	@Override
+	public void sendPasswordResetEmail(String firstname, String passwordResetLink, String emailTo) {
+		VelocityContext context = new VelocityContext();
+		context.put("firstname", firstname);
+		context.put("passwordResetLink", passwordResetLink);
+
+		MimeMessage mimeMessage = mailSender.createMimeMessage();
+		try {
+			MimeMessageHelper mimeMessageHelper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+			mimeMessageHelper.setSubject("Password Reset Request");
+			mimeMessageHelper.setFrom("gestibank1212@gmail.com");
+			mimeMessageHelper.setTo(emailTo);
+			mimeMessageHelper.setText(getContentFromTemplatePasswordReset(context), true);
+			new Thread(() -> {
+				mailSender.send(mimeMessageHelper.getMimeMessage());
+			}).start();
+		} catch (MessagingException e) {
+			e.printStackTrace();
+		}
+		
+	}
+	
+	public String getContentFromTemplatePasswordReset(VelocityContext model) {
+		StringWriter content = new StringWriter();
+		try {
+			velocityEngine.mergeTemplate("/templates/passwordReset.vm", "UTF-8", model, content);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return content.toString();
+	}
+
 
 }

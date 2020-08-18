@@ -12,4 +12,6 @@ public interface EmailService {
 
 	void sendSavingAccountCreationEmail(String firstname, String emailTo);
 
+	void sendPasswordResetEmail(String firstname, String passwordResetLink, String emailTo);
+
 }

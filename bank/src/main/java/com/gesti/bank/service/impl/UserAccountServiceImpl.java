@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,11 +26,13 @@ import com.gesti.bank.dto.ClientResponseForAdminDTO;
 import com.gesti.bank.dto.CreateAgentRequestDTO;
 import com.gesti.bank.dto.CreateClientRequestDTO;
 import com.gesti.bank.dto.FileInfoResponseDTO;
+import com.gesti.bank.dto.ForgotPasswordRequestDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.dto.GetUnresolvedRequestsForAgentResponseDTO;
 import com.gesti.bank.dto.LoginRequestDTO;
 import com.gesti.bank.dto.LoginResponseDTO;
 import com.gesti.bank.dto.PasswordChangeRequestDTO;
+import com.gesti.bank.dto.ResetPasswordRequestDTO;
 import com.gesti.bank.dto.UpdateAgentRequestDTO;
 import com.gesti.bank.dto.VerifiedClientRequestDTO;
 import com.gesti.bank.dto.VerifiedClientsRequestDTO;
@@ -646,6 +649,57 @@ public class UserAccountServiceImpl implements UserAccountService {
 		userAccountRepository.save(loggedInUser);
 
 		return "Success";
+	}
+
+	@Override
+	public String forgotPassword(ForgotPasswordRequestDTO request) throws Exception {
+		Optional<UserAccount> userOpt = userAccountRepository.findByEmail(request.getEmail());
+		if (!userOpt.isPresent()) {
+			throw new Exception("Provided e-mail does not exist!");
+		}
+		UserAccount user = userOpt.get();
+
+		if (user.getValid() == 0) {
+			throw new Exception("User with provided e-mail is not valid!");
+		}
+		
+		// Generate random 36-character string token for reset password
+		String token = UUID.randomUUID().toString();
+		user.setToken(token);
+
+		//Save token to database
+		userAccountRepository.save(user);
+		
+		String passwordResetLink = "http://localhost:4200/forgotPassword?token=" + token;
+		
+		emailService.sendPasswordResetEmail(user.getFirstname(), passwordResetLink, user.getEmail());
+		
+		return "A password reset link has been sent to : " + user.getEmail() ;
+	}
+
+	@Override
+	public String resetPassword(ResetPasswordRequestDTO request) throws Exception {
+		Optional<UserAccount> userOpt = userAccountRepository.findByToken(request.getToken());
+		if (!userOpt.isPresent()) {
+			throw new Exception("Oops!  This is an invalid password reset link.");
+		}
+		UserAccount user = userOpt.get();
+
+		if (user.getValid() == 0) {
+			throw new Exception("User is not valid!");
+		}
+        
+		// Set new password    
+        user.setPass(request.getNewPassword());
+        
+		// Set the reset token to null so it cannot be used again
+		user.setToken(null);
+
+		// Save user
+		userAccountRepository.save(user);
+		
+		
+		return "You have successfully reset your password! You may now login.";
 	}
 
 }

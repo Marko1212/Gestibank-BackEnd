@@ -18,10 +18,12 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.gesti.bank.dto.CreateClientRequestDTO;
+import com.gesti.bank.dto.ForgotPasswordRequestDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.dto.LoginRequestDTO;
 import com.gesti.bank.dto.LoginResponseDTO;
 import com.gesti.bank.dto.PasswordChangeRequestDTO;
+import com.gesti.bank.dto.ResetPasswordRequestDTO;
 import com.gesti.bank.service.UserAccountService;
 
 @CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
@@ -87,6 +89,34 @@ public class UserAccountController {
 		String response;
 		try {
 			response = userAccountService.changePassword(request);
+			return new ResponseEntity<String>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response = e.getMessage();
+			return new ResponseEntity<String>(response, HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
+	@PostMapping("/forgotPassword")
+	public ResponseEntity<String> forgotPassword(@RequestBody ForgotPasswordRequestDTO request){
+		String response;
+		try {
+			response = userAccountService.forgotPassword(request);
+			return new ResponseEntity<String>(response, HttpStatus.OK);
+		} catch (Exception e) {
+			e.printStackTrace();
+			response = e.getMessage();
+			return new ResponseEntity<String>(response, HttpStatus.BAD_REQUEST);
+		}
+		
+	}
+	
+	@PostMapping("/resetPassword")
+	public ResponseEntity<String> resetPassword(@RequestBody ResetPasswordRequestDTO request){
+		String response;
+		try {
+			response = userAccountService.resetPassword(request);
 			return new ResponseEntity<String>(response, HttpStatus.OK);
 		} catch (Exception e) {
 			e.printStackTrace();

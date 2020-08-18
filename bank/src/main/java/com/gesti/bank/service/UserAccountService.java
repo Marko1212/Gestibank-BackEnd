@@ -9,11 +9,13 @@ import com.gesti.bank.dto.AssignClientRequestDTO;
 import com.gesti.bank.dto.ClientResponseForAdminDTO;
 import com.gesti.bank.dto.CreateAgentRequestDTO;
 import com.gesti.bank.dto.CreateClientRequestDTO;
+import com.gesti.bank.dto.ForgotPasswordRequestDTO;
 import com.gesti.bank.dto.GetAccountResponseDTO;
 import com.gesti.bank.dto.GetUnresolvedRequestsForAgentResponseDTO;
 import com.gesti.bank.dto.LoginRequestDTO;
 import com.gesti.bank.dto.LoginResponseDTO;
 import com.gesti.bank.dto.PasswordChangeRequestDTO;
+import com.gesti.bank.dto.ResetPasswordRequestDTO;
 import com.gesti.bank.dto.UpdateAgentRequestDTO;
 import com.gesti.bank.dto.VerifiedClientsRequestDTO;
 
@@ -46,5 +48,9 @@ public interface UserAccountService {
 	AgentResponseDTO getAgentOfClient(int idClient) throws Exception;
 
 	String changePassword(PasswordChangeRequestDTO request) throws Exception;
+
+	String forgotPassword(ForgotPasswordRequestDTO request) throws Exception;
+
+	String resetPassword(ResetPasswordRequestDTO request) throws Exception;
 
 }
