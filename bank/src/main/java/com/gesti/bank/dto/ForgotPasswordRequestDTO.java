@@ -8,7 +8,7 @@ public class ForgotPasswordRequestDTO {
 		return email;
 	}
 
-	public void setEmail(String email) {
+	public void setEmaila(String email) {
 		this.email = email;
 	}
 

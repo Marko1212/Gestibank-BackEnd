@@ -654,13 +654,14 @@ public class UserAccountServiceImpl implements UserAccountService {
 	@Override
 	public String forgotPassword(ForgotPasswordRequestDTO request) throws Exception {
 		Optional<UserAccount> userOpt = userAccountRepository.findByEmail(request.getEmail());
+		
 		if (!userOpt.isPresent()) {
-			throw new Exception("Provided e-mail does not exist!");
+			return "Provided e-mail does not exist!";
 		}
 		UserAccount user = userOpt.get();
 
 		if (user.getValid() == 0) {
-			throw new Exception("User with provided e-mail is not valid!");
+			return "User with provided e-mail is not valid!";
 		}
 		
 		// Generate random 36-character string token for reset password
@@ -681,12 +682,12 @@ public class UserAccountServiceImpl implements UserAccountService {
 	public String resetPassword(ResetPasswordRequestDTO request) throws Exception {
 		Optional<UserAccount> userOpt = userAccountRepository.findByToken(request.getToken());
 		if (!userOpt.isPresent()) {
-			throw new Exception("Oops!  This is an invalid password reset link.");
+			return "Oops! This is an invalid password reset link.";
 		}
 		UserAccount user = userOpt.get();
 
 		if (user.getValid() == 0) {
-			throw new Exception("User is not valid!");
+			return "User is not valid!";
 		}
         
 		// Set new password    
@@ -699,7 +700,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 		userAccountRepository.save(user);
 		
 		
-		return "You have successfully reset your password! You may now login.";
+		return "You have successfully reset your password! You can now login.";
 	}
 
 }
