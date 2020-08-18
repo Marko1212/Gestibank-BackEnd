@@ -682,7 +682,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 	public String resetPassword(ResetPasswordRequestDTO request) throws Exception {
 		Optional<UserAccount> userOpt = userAccountRepository.findByToken(request.getToken());
 		if (!userOpt.isPresent()) {
-			return "Oops! This is an invalid password reset link.";
+			return "Oops! This is an invalid password reset link!";
 		}
 		UserAccount user = userOpt.get();
 
