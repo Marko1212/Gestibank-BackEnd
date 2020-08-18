@@ -671,7 +671,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 		//Save token to database
 		userAccountRepository.save(user);
 		
-		String passwordResetLink = "http://localhost:4200/forgotPassword?token=" + token;
+		String passwordResetLink = "http://localhost:4200/resetPassword?token=" + token;
 		
 		emailService.sendPasswordResetEmail(user.getFirstname(), passwordResetLink, user.getEmail());
 		
