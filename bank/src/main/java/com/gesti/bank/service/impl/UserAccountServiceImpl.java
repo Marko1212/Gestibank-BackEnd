@@ -680,6 +680,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 
 	@Override
 	public String resetPassword(ResetPasswordRequestDTO request) throws Exception {
+		if(request.getToken() == null) {
+			return "Oops! This is an invalid password reset link!";
+		}
 		Optional<UserAccount> userOpt = userAccountRepository.findByToken(request.getToken());
 		if (!userOpt.isPresent()) {
 			return "Oops! This is an invalid password reset link!";
