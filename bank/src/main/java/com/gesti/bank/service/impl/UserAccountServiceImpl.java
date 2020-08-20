@@ -51,6 +51,7 @@ import com.gesti.bank.service.BankAccountService;
 import com.gesti.bank.service.EmailService;
 import com.gesti.bank.service.FilesStorageService;
 import com.gesti.bank.service.UserAccountService;
+import com.gesti.bank.util.PasswordValidator;
 import com.gesti.bank.util.RequestTitlesUtil;
 
 @Service
@@ -103,7 +104,15 @@ public class UserAccountServiceImpl implements UserAccountService {
 		if (clientRole == null) {
 			throw new Exception("Role not found");
 		}
-
+		
+		String username = request.getUsername();
+		String password = request.getPass();
+		
+		PasswordValidator passwordValidator = new PasswordValidator();
+		
+		if (!passwordValidator.validate(username, password)) {
+			throw new Exception("Your password is not valid! Valid password must have between 6 and 8 characters, must contain at least 1 uppercase letter, at least 2 digits, at least 1 special character, and should not contain username!");
+		}
 		Address address = new Address();
 		address.setAdditionalInfo(request.getAdditionalInfoAddress());
 		address.setCity(request.getCity());
@@ -120,11 +129,11 @@ public class UserAccountServiceImpl implements UserAccountService {
 		userAccount.setLastname(request.getLastname());
 		userAccount.setMarriageStatus(request.getMarriageStatus());
 		userAccount.setNumberOfChildren(request.getNumberOfChildren());
+		userAccount.setUsername(request.getUsername());
 		userAccount.setPass(request.getPass());
 		userAccount.setPhone(request.getPhone());
 		userAccount.setRole(clientRole);
 		userAccount.setStartDate(new Date());
-		userAccount.setUsername(request.getUsername());
 		boolean isValid = false;
 		userAccount.setValid((byte) (isValid ? 1 : 0));
 		userAccountRepository.saveAndFlush(userAccount);
