@@ -8,7 +8,8 @@ public class PasswordValidator {
 	private Pattern pattern;
 	private Matcher matcher;
 
-	private static final String PASSWORD_PATTERN = "((?=.*[A-Z])(?=.*[@#$%]).{6,8})";
+	private static final String PASSWORD_PATTERN = "((?=.*[A-Z])(?=.*[@#$%]).{6,8})";   
+	//special characters: @#$% (zapravo specijalan karakter je bilo koji karakter koji je razlicit od cifre 0-9, od slova ili od space
 
 	public PasswordValidator() {
 		pattern = Pattern.compile(PASSWORD_PATTERN);
@@ -28,12 +29,14 @@ public class PasswordValidator {
 		}
 		/* Declare an int variable to hold the count of each digit */
 	    int digit = 0; 
-		char element;
+		//char element;
 	    /* Check if the password has 2 or more digits */
-	    for(int index = 0; index < password.length(); index++ ){
+	   // for(int index = 0; index < password.length(); index++ ){
 
 	        /* Check each char in the String */
-	        element = password.charAt( index );
+	     //   element = password.charAt( index );
+	        
+	        for(char element:password.toCharArray()) {
 
 	        /* Check if it is a digit or not */
 	        if( Character.isDigit(element) ){
