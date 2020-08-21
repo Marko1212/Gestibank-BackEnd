@@ -105,6 +105,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 			throw new Exception("Role not found");
 		}
 		
+		//na frontu vec ima minimalna validacija password-a. Ovde je, kao vezba, dodata i na bekendu dodatna validacija password-a, samo za buduce klijente, koji
+		//prvi put traze otvaranje racuna preko forme na sajtu (espace public).
+		
 		String username = request.getUsername();
 		String password = request.getPass();
 		
