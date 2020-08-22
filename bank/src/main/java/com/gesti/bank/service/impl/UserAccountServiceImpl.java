@@ -111,9 +111,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 		String username = request.getUsername();
 		String password = request.getPass();
 		
-		PasswordValidator passwordValidator = new PasswordValidator();
+		//PasswordValidator passwordValidator = new PasswordValidator();
 		
-		if (!passwordValidator.validate(username, password)) {
+		if (!PasswordValidator.validate(username, password)) {
 			throw new Exception("Your password is not valid! Valid password must have between 6 and 8 characters, must contain at least 1 uppercase letter, at least 2 digits, at least 1 special character, and should not contain username!");
 		}
 		Address address = new Address();

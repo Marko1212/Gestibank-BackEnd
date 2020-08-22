@@ -5,13 +5,13 @@ import java.util.regex.Pattern;
 
 public class PasswordValidator {
 
-	private Pattern pattern;
-	private Matcher matcher;
+	private static Pattern pattern;
+	private static Matcher matcher;
 
 	private static final String PASSWORD_PATTERN = "((?=.*[A-Z])(?=.*[@#$%]).{6,8})";   
-	//special characters: @#$% (zapravo specijalan karakter je bilo koji karakter koji je razlicit od cifre 0-9, od slova ili od space
+	//special characters: ovde smo izabrali da je to jedan od ovih : @#$% znakova (a zapravo specijalan karakter je bilo koji karakter koji je razlicit od cifre 0-9, od slova ili od space)
 
-	public PasswordValidator() {
+	static {
 		pattern = Pattern.compile(PASSWORD_PATTERN);
 	}
 
@@ -22,7 +22,7 @@ public class PasswordValidator {
 //		4) Password mora da sadrzi bar jedan specijalni karakter - ok
 //		5) Password ne sme da sadrzi username - ok
 
-	public boolean validate(final String username, final String password) {
+	public static boolean validate(final String username, final String password) {
 		if (password.indexOf(username) > -1) {
 			System.out.println("Password should not contain user name");
 			return false;
