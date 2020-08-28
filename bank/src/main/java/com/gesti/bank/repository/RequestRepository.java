@@ -30,5 +30,4 @@ public interface RequestRepository extends JpaRepository<Request, Integer>{
 	List<UserAccount> fetchAgentForClient(Pageable pageable, @Param("userAccountFrom") UserAccount client, @Param("requestStatus") byte requestStatus);
 
 	
-	
 }
