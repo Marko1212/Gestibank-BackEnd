@@ -326,10 +326,11 @@ CREATE TABLE `user_account` (
   `valid` tinyint(1) NOT NULL,
   `marriage_status` varchar(255) DEFAULT NULL,
   `number_of_children` int unsigned DEFAULT NULL,
-  `token` varchar(1000) DEFAULT NULL,
+  `token` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id_user_account`),
   UNIQUE KEY `username_UNIQUE` (`username`),
   UNIQUE KEY `email_UNIQUE` (`email`),
+  UNIQUE KEY `token_UNIQUE` (`token`),
   KEY `user_account_FKIndex1` (`address_id_address`),
   KEY `user_account_FKIndex2` (`role_id_role`),
   CONSTRAINT `user_account_ibfk_1` FOREIGN KEY (`address_id_address`) REFERENCES `address` (`id_address`),
@@ -356,4 +357,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2020-08-21 18:45:28
+-- Dump completed on 2020-09-02 20:11:24
