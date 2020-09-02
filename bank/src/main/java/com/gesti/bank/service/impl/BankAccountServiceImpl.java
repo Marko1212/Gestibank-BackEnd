@@ -43,7 +43,6 @@ public class BankAccountServiceImpl implements BankAccountService {
 
 	private final static int INITIAL_BANK_ACCOUNT_TYPE_ID = 1;
 	private final static int INITIAL_RULE_ID = 1;
-
 	private final static int SAVING_BANK_ACCOUNT_TYPE_ID = 9;
 	private final static int SAVING_RULE_ID = 8;
 
