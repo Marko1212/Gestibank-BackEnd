@@ -715,7 +715,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 		userAccountRepository.save(user);
 		
 		
-		return "You have successfully reset your password! You can now login.";
+		return "You have successfully reset your password! You can now login!";
 	}
 
 }
