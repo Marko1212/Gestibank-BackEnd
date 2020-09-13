@@ -25,7 +25,7 @@ import com.gesti.bank.dto.CreateAgentRequestDTO;
 import com.gesti.bank.dto.UpdateAgentRequestDTO;
 import com.gesti.bank.service.UserAccountService;
 
-@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
+@CrossOrigin(origins = {"http://localhost:4200", "http://192.168.1.80:4200"}, maxAge = 3600)
 @RestController
 @RequestMapping("/admin")
 

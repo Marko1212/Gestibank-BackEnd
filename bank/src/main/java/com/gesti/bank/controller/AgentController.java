@@ -26,7 +26,7 @@ import com.gesti.bank.model.BankAccount;
 import com.gesti.bank.service.BankAccountService;
 import com.gesti.bank.service.UserAccountService;
 
-@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
+@CrossOrigin(origins = {"http://localhost:4200", "http://192.168.1.80:4200"}, maxAge = 3600)
 @RestController
 @RequestMapping("/agent")
 public class AgentController {

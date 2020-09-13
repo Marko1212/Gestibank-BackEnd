@@ -26,7 +26,15 @@ import com.gesti.bank.dto.PasswordChangeRequestDTO;
 import com.gesti.bank.dto.ResetPasswordRequestDTO;
 import com.gesti.bank.service.UserAccountService;
 
-@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
+//u cross origins, treba staviti url localhost:4200 (to je za slucaj kad je klijent browser na laptopu, u ovom slucaju sa angular aplikacijom na port-u 4200) i url 192.168.1.80:4200 (sa port : 4200 za Angular front end) - to je kad
+//'gadjam' aplikaciju back end, sa brauzera u mobilnom telefonu. Taj mobilni telefon mora da bude prikljucen na internet pomocu iste wi fi mreze kao
+// i laptop (na kome je klient, brauzer). Ukoliko stavim origins = "*", onda dozvoljavam dostup na aplikaciju sa bilo kog klijenta (desktop, laptop, tablet, mobile device i t.d.)
+//192.168.1.80 je ovde IP v4 adresa kompjutera na kome mi je brauzer klijenta (laptop). To je takodje ip v4 adresa klijenta, mobilni telefon, posto je mobilni telefon prikljucen na internet pomocu
+//iste wi fi mreze kao i laptop, kao sto je receno vise. ta IP v4 adresa se dobija pomocu ipconfig komande u cmd shell-u, u Windows.
+//Ponekad je jos potrebno, da bi se funkcionisalo kako treba, iskljuciti antivirusni program i firewall na kompjuteru, gde se ranuje back end.
+
+//@CrossOrigin(origins = {"http://localhost:4200", "http://192.168.1.80:4200"}, maxAge = 3600)
+@CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @RequestMapping("/userAccount")
 public class UserAccountController {
