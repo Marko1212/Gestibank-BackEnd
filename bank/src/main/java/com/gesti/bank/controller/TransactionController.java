@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -68,6 +69,7 @@ public class TransactionController {
 	}
 
 	@GetMapping("/getBalanceForBankAccountId")
+	//@RequestMapping(value = "/getBalanceForBankAccountId", method = RequestMethod.GET, produces="application/json")
 	public ResponseEntity<String> getBalanceForBankAccountId(@RequestParam int bankAccountId){
 		String response = "0.00";
 		try {
@@ -75,6 +77,7 @@ public class TransactionController {
 			//JSONObject jsonObject = new JSONObject();
 			//jsonObject.put("balance", response);
 			return new ResponseEntity<String> (response, HttpStatus.OK);
+			//return new ResponseEntity<String>(jsonObject.toString(), HttpStatus.OK);
 		} catch(Exception e) {
 			e.printStackTrace();
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
