@@ -23,8 +23,10 @@ mvn spring-boot:run
 ## Fonctionnalités principales
 
 - GestiBank est un site de gestion bancaire en ligne, qui simule la création et la gestion de comptes
-  bancaires des clients via le Web. Dans ce cadre, l'application GestiBank répond principalement à 2 objectifs : - création, suivi et la gestion des comptes
-  bancaires pour les clients de la banque, administration et paramétrage des comptes pour les agents de la banque.
+  bancaires des clients via le Web. Dans ce cadre, l'application GestiBank répond principalement à 2 objectifs : 
+- création, suivi et la gestion des comptes
+  bancaires pour les clients de la banque
+- administration et paramétrage des comptes pour les agents de la banque.
 
 ## Structure du projet
 
