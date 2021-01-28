@@ -31,3 +31,5 @@ build/
 .vscode/
 
 uploads/
+
+src/main/java/com/gesti/bank/config/MailConfig.java
