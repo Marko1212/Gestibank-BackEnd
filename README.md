@@ -26,7 +26,7 @@ mvn spring-boot:run
   bancaires des clients via le Web. Dans ce cadre, l'application GestiBank répond principalement à 2 objectifs : 
 	- création, suivi et la gestion des comptes
   	  bancaires pour les clients de la banque
-	- administration et paramétrage des comptes pour les agents de la banque.
+	- administration et paramétrage des comptes pour les agents de la banque
 
 ## Structure du projet
 
