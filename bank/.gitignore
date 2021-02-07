@@ -32,4 +32,4 @@ build/
 
 uploads/
 
-src/main/java/com/gesti/bank/config/MailConfig.java
+src/main/resources/application.properties
