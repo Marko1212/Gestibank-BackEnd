@@ -35,7 +35,7 @@ public class UserAccount implements Serializable {
 	private String marriageStatus;
 
 	@Column(name="number_of_children")
-	private int numberOfChildren;
+	private String numberOfChildren;
 
 	private String pass;
 
@@ -130,11 +130,11 @@ public class UserAccount implements Serializable {
 		this.marriageStatus = marriageStatus;
 	}
 
-	public int getNumberOfChildren() {
+	public String getNumberOfChildren() {
 		return this.numberOfChildren;
 	}
 
-	public void setNumberOfChildren(int numberOfChildren) {
+	public void setNumberOfChildren(String numberOfChildren) {
 		this.numberOfChildren = numberOfChildren;
 	}
 

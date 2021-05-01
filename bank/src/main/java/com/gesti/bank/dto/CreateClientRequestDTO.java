@@ -9,7 +9,7 @@ public class CreateClientRequestDTO {
 	private String firstname;
 	private String lastname;
 	private String marriageStatus;
-	private int numberOfChildren;
+	private String numberOfChildren;
 	private String pass;
 	private String phone;
 	private String username;
@@ -33,7 +33,7 @@ public class CreateClientRequestDTO {
 		this.homeNumber = (jsonObject.getString("homeNumber"));
 		this.lastname = (jsonObject.getString("lastname"));
 		this.marriageStatus = (jsonObject.getString("marriageStatus"));
-		this.numberOfChildren = (jsonObject.getInt("numberOfChildren"));
+		this.numberOfChildren = (jsonObject.getString("numberOfChildren"));
 		this.pass = (jsonObject.getString("pass"));
 		this.phone = (jsonObject.getString("phone"));
 		this.street = (jsonObject.getString("street"));
@@ -66,10 +66,10 @@ public class CreateClientRequestDTO {
 	public void setMarriageStatus(String marriageStatus) {
 		this.marriageStatus = marriageStatus;
 	}
-	public int getNumberOfChildren() {
+	public String getNumberOfChildren() {
 		return numberOfChildren;
 	}
-	public void setNumberOfChildren(int numberOfChildren) {
+	public void setNumberOfChildren(String numberOfChildren) {
 		this.numberOfChildren = numberOfChildren;
 	}
 	public String getPass() {

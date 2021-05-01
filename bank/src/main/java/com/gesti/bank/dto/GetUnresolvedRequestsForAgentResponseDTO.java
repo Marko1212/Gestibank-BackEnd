@@ -16,7 +16,7 @@ public class GetUnresolvedRequestsForAgentResponseDTO {
 	private String firstname;
 	private String lastname;
 	private String marriageStatus;
-	private int numberOfChildren;
+	private String numberOfChildren;
 	private String pass;
 	private String phone;
 	private String username;
@@ -31,7 +31,7 @@ public class GetUnresolvedRequestsForAgentResponseDTO {
 	List<FileInfoResponseDTO> files;
 
 	public GetUnresolvedRequestsForAgentResponseDTO(int idRequest, String title, String description, Date time, byte requestStatus,
-			int idClient, String email, String firstname, String lastname, String marriageStatus, int numberOfChildren,
+			int idClient, String email, String firstname, String lastname, String marriageStatus, String numberOfChildren,
 			String pass, String phone, String username, String additionalInfoAddress, String city, String country,
 			String homeNumber, String street, int zip, boolean valid, List<FileInfoResponseDTO> files) {
 		super();
@@ -140,11 +140,11 @@ public class GetUnresolvedRequestsForAgentResponseDTO {
 		this.marriageStatus = marriageStatus;
 	}
 
-	public int getNumberOfChildren() {
+	public String getNumberOfChildren() {
 		return numberOfChildren;
 	}
 
-	public void setNumberOfChildren(int numberOfChildren) {
+	public void setNumberOfChildren(String numberOfChildren) {
 		this.numberOfChildren = numberOfChildren;
 	}
 
