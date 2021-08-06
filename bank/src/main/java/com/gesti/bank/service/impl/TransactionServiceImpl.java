@@ -1,9 +1,12 @@
 package com.gesti.bank.service.impl;
 
 import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 import java.util.Optional;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
@@ -278,7 +281,9 @@ public class TransactionServiceImpl implements TransactionService {
 	public String getBalanceForBankAccountId(int bankAccountId) {
 		try {
 			double balance = transactionRepository.getBalanceForBankAccountId(bankAccountId);
-			DecimalFormat df = new DecimalFormat("0.00");
+			DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
+			DecimalFormat df = new DecimalFormat("0.00", symbols);
+			System.out.println(df.format(balance));
 			return df.format(balance);
 		} catch (Exception e) {
 			e.printStackTrace();
