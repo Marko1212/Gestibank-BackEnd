@@ -205,7 +205,13 @@ public class UserAccountServiceImpl implements UserAccountService {
 		agent.setFirstname(request.getFirstname());
 		agent.setLastname(request.getLastname());
 		agent.setPhone(request.getPhone());
-		agent.setPass(request.getPass());
+		
+		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
+        String hashedPass = bCryptPasswordEncoder.encode(request.getPass());
+		// Set new password    
+        agent.setPass(hashedPass);
+		
 		agent.setRole(agentRole);
 		agent.setStartDate(new Date());
 		agent.setUsername(request.getUsername());
@@ -320,7 +326,6 @@ public class UserAccountServiceImpl implements UserAccountService {
 		agent.setEmail(request.getEmail());
 		agent.setFirstname(request.getFirstname());
 		agent.setLastname(request.getLastname());
-		agent.setPass(request.getPass());
 		agent.setPhone(request.getPhone());
 		agent.setUsername(request.getUsername());
 
