@@ -5,8 +5,7 @@ import java.util.List;
 public class AssignClientRequestDTO {
 	private List<ClientRequestForAdminDTO> clients;
 
-	
-	
+
 	public AssignClientRequestDTO() {
 		super();
 	}

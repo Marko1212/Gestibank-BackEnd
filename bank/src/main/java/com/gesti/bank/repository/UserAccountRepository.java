@@ -15,6 +15,7 @@ import com.gesti.bank.model.UserAccount;
 public interface UserAccountRepository extends JpaRepository<UserAccount, Integer> {
 	List<UserAccount> findAllByRole(Role role);
 	UserAccount findByUsernameAndPass(String username, String password);
+	UserAccount findByUsername(String username);
 	
 	List<UserAccount> findAllByRoleAndValid(Role role, byte valid);
 	

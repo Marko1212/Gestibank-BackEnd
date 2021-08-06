@@ -349,7 +349,7 @@ ul.social li{
             			<div class="text" style="padding: 0 2.5em; text-align: center;">
             				<h2>Your account has been created!</h2>
             				<h3>Welcome ${name}!</h3>
-            				<h3>Your username is : ${username}, your password is : ${password}</h3>
+            				<h3>Your username is : ${username}</h3>
             			</div>
             		</td>
             	</tr>

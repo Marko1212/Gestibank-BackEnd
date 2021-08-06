@@ -283,7 +283,6 @@ public class TransactionServiceImpl implements TransactionService {
 			double balance = transactionRepository.getBalanceForBankAccountId(bankAccountId);
 			DecimalFormatSymbols symbols = new DecimalFormatSymbols(Locale.US);
 			DecimalFormat df = new DecimalFormat("0.00", symbols);
-			System.out.println(df.format(balance));
 			return df.format(balance);
 		} catch (Exception e) {
 			e.printStackTrace();

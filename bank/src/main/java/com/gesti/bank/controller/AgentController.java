@@ -59,6 +59,7 @@ public class AgentController {
 			response = userAccountService.validation(request);
 			return new ResponseEntity<String>(response, HttpStatus.OK);
 		} catch (Exception e){
+			e.printStackTrace();
 			return new ResponseEntity<String>(e.getMessage(), HttpStatus.BAD_REQUEST);
 		}
 	}

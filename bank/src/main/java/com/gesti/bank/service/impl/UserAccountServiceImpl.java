@@ -14,6 +14,7 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -109,6 +110,9 @@ public class UserAccountServiceImpl implements UserAccountService {
 		//prvi put traze otvaranje racuna preko forme na sajtu (espace public).
 		
 		String username = request.getUsername();
+		
+		
+		
 		String password = request.getPass();
 		
 		//PasswordValidator passwordValidator = new PasswordValidator();
@@ -133,7 +137,12 @@ public class UserAccountServiceImpl implements UserAccountService {
 		userAccount.setMarriageStatus(request.getMarriageStatus());
 		userAccount.setNumberOfChildren(request.getNumberOfChildren());
 		userAccount.setUsername(request.getUsername());
-		userAccount.setPass(request.getPass());
+		
+		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
+        String hashedPass = bCryptPasswordEncoder.encode(request.getPass());
+		
+		userAccount.setPass(hashedPass);
 		userAccount.setPhone(request.getPhone());
 		userAccount.setRole(clientRole);
 		userAccount.setStartDate(new Date());
@@ -264,14 +273,20 @@ public class UserAccountServiceImpl implements UserAccountService {
 
 	@Override
 	public LoginResponseDTO login(LoginRequestDTO request) throws Exception {
-		UserAccount loggedInUser = userAccountRepository.findByUsernameAndPass(request.getUsername(),
-				request.getPassword());
+		UserAccount loggedInUser = userAccountRepository.findByUsername(request.getUsername());
 		if (loggedInUser == null) {
 			throw new Exception("User with provided credentials does not exist!");
 		}
 		if (loggedInUser.getValid() == 0) {
 			throw new Exception("User with provided credentials is not valid!");
 		}
+		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+		boolean encryptedPasswordMatch = bCryptPasswordEncoder.matches(request.getPassword(), loggedInUser.getPass());
+		boolean plainPasswordMatch = request.getPassword().equals(loggedInUser.getPass());
+		if(!encryptedPasswordMatch && !plainPasswordMatch) {
+			throw new Exception("Bad password");
+		}
+		 
 		LoginResponseDTO response = new LoginResponseDTO(loggedInUser.getIdUserAccount(),
 				loggedInUser.getRole().getName());
 		return response;
@@ -512,7 +527,6 @@ public class UserAccountServiceImpl implements UserAccountService {
 	@Transactional
 	public String validation(VerifiedClientsRequestDTO request) throws Exception {
 		for (VerifiedClientRequestDTO obj : request.getValidated()) {
-
 			Optional<UserAccount> agentOpt = userAccountRepository.findById(obj.getIdAgent());
 			if (!agentOpt.isPresent()) {
 				throw new Exception("User Account does not exist!");
@@ -568,7 +582,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 				requestRepository.save(req);
 				userAccountRepository.save(client);
 				bankAccountService.createInitialBankAccount(client);
-				emailService.sendVerificationEmail(client.getFirstname(), client.getUsername(), client.getPass(),
+				emailService.sendVerificationEmail(client.getFirstname(), client.getUsername(),
 						client.getEmail());
 			} else {
 				
@@ -651,12 +665,20 @@ public class UserAccountServiceImpl implements UserAccountService {
 		if (loggedInUser.getValid() == 0) {
 			throw new Exception("User with provided credentials is not valid!");
 		}
-
-		if (!loggedInUser.getPass().equals(request.getOldPassword())) {
+		
+		 BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+		boolean encryptedPasswordMatch = bCryptPasswordEncoder.matches(request.getOldPassword(), loggedInUser.getPass());
+		boolean plainPasswordMatch = request.getOldPassword().equals(loggedInUser.getPass());
+		if(!encryptedPasswordMatch && !plainPasswordMatch) {
 			throw new Exception("Supplied current password does not match with the password saved in the database!");
 		}
 
-		loggedInUser.setPass(request.getNewPassword());
+		//if (!loggedInUser.getPass().equals(request.getOldPassword())) {
+		//	throw new Exception("Supplied current password does not match with the password saved in the database!");
+		//}
+
+		String hashedPass = bCryptPasswordEncoder.encode(request.getNewPassword());
+		loggedInUser.setPass(hashedPass);
 
 		userAccountRepository.save(loggedInUser);
 
@@ -705,8 +727,12 @@ public class UserAccountServiceImpl implements UserAccountService {
 			return "User is not valid!";
 		}
         
+		
+		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
+
+        String hashedPass = bCryptPasswordEncoder.encode(request.getNewPassword());
 		// Set new password    
-        user.setPass(request.getNewPassword());
+        user.setPass(hashedPass);
         
 		// Set the reset token to null so it cannot be used again
 		user.setToken(null);

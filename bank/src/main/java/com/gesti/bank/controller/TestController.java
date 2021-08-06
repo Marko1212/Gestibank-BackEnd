@@ -18,7 +18,7 @@ public class TestController {
 	
 	@GetMapping("/proba")
 	public String testMethod() {
-		emailService.sendVerificationEmail("Pera", "pera", "pera", "perica@mailinator.com");
+		emailService.sendVerificationEmail("Pera", "pera", "perica@mailinator.com");
 		return "it works!";
 	}
 

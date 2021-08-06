@@ -24,11 +24,11 @@ public class EmailServiceImpl implements EmailService {
 	VelocityEngine velocityEngine;
 
 	@Override
-	public void sendVerificationEmail(String name, String username, String password, String emailTo) {
+	public void sendVerificationEmail(String name, String username, String emailTo) {
 		VelocityContext context = new VelocityContext();
 		context.put("name", name);
 		context.put("username", username);
-		context.put("password", password);
+		
 
 		MimeMessage mimeMessage = mailSender.createMimeMessage();
 		try {
