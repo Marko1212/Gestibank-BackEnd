@@ -209,7 +209,7 @@ public class UserAccountServiceImpl implements UserAccountService {
 		BCryptPasswordEncoder bCryptPasswordEncoder = new BCryptPasswordEncoder();
 
         String hashedPass = bCryptPasswordEncoder.encode(request.getPass());
-		// Set new password    
+		// Set password    
         agent.setPass(hashedPass);
 		
 		agent.setRole(agentRole);
