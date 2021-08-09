@@ -87,6 +87,23 @@ public class CreateAgentRequestDTO {
 	public void setZip(int zip) {
 		this.zip = zip;
 	}
+	public CreateAgentRequestDTO(String email, String firstname, String lastname, String pass, String phone,
+			String username, String additionalInfoAddress, String city, String country, String homeNumber,
+			String street, int zip) {
+		super();
+		this.email = email;
+		this.firstname = firstname;
+		this.lastname = lastname;
+		this.pass = pass;
+		this.phone = phone;
+		this.username = username;
+		this.additionalInfoAddress = additionalInfoAddress;
+		this.city = city;
+		this.country = country;
+		this.homeNumber = homeNumber;
+		this.street = street;
+		this.zip = zip;
+	}
 	
 	
 
