@@ -33,6 +33,6 @@ mvn spring-boot:run
 - com.gesti.bank.controller - est utilisé comme dispatcher pour les requêtes http
 - com.gesti.bank.dto - déclarations des objets qui s'échangent entre le client et le serveur
 - com.gesti.bank.model - entités qui sont associées aux tables de la base de données relationnelle MySQL
-- com.gesti.bank.repository - Java persistence API pour le travail avec la base de données
+- com.gesti.bank.repository - Java persistence API pour la communication avec la base de données
 - com.gesti.bank.service - déclaration de la logique métier
 - com.gesti.bank.service.impl - implémentation de la logique métier
